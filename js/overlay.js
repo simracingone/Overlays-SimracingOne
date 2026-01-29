@@ -5,7 +5,7 @@ const VOICE_URL = "http://127.0.0.1:5000";
 
 async function fetchData() {
     try {
-        const response = await fetch(`${API_URL}/data`); // Assure-toi que la route /data existe
+        const response = await fetch(`${API_URL}/data`); 
         const data = await response.json();
         hudClassement(data);
         hudPiste(data);
@@ -277,19 +277,6 @@ function updateBar(id, pourcent, type) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 function rafRapide(d) {
     if (typeof hudPerformance === "function") hudPerformance(d);
 }
@@ -417,7 +404,7 @@ window.addEventListener('storage', applyVisibility);
 
 
 
-
+/*
 async function processNextMessage() {
     if (radioQueue.length === 0) { 
         isRadioTalking = false; 
@@ -460,7 +447,55 @@ async function processNextMessage() {
         // Relance la file d'attente
         setTimeout(processNextMessage, 500);
     }
+}*/
+
+async function processNextMessage() {
+    if (radioQueue.length === 0) {
+        isRadioTalking = false;
+        // Optionnel : masquer le HUD après un délai quand il n'y a plus de messages
+        setTimeout(() => {
+            const moduleRadio = document.getElementById("module-radio-team");
+            if (moduleRadio) moduleRadio.classList.remove("active");
+        }, 2000);
+        return;
+    }
+    isRadioTalking = true;
+    const msg = radioQueue.shift();
+    const expert = CONFIG_TEAM[msg.indexVoix.toString()] || CONFIG_TEAM["1"];
+    const moduleRadio = document.getElementById("module-radio-team");
+
+    if (moduleRadio) {
+        // MISE À JOUR DES TEXTES ET IMAGES
+        document.getElementById("radio-img").src = `assets/team/${expert.image}`;
+        document.getElementById("radio-name").textContent = expert.nom.toUpperCase();
+        document.getElementById("radio-dept").textContent = expert.departement; // Vérifiez que cet ID existe
+        document.getElementById("radio-role").textContent = expert.role;        // Vérifiez que cet ID existe
+        document.getElementById("radio-message").textContent = msg.texte;
+
+        // AFFICHAGE VISUEL
+        moduleRadio.style.display = "block"; // Force l'affichage
+        moduleRadio.classList.add("active"); // Ajoute l'animation si définie en CSS
+        
+        try {
+            await fetch('http://127.0.0.1:5000/speak', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ text: msg.texte, voice_index: msg.indexVoix }) 
+            });
+            await attendreFinDeParole(); 
+            await new Promise(r => setTimeout(r, 800));
+        } catch (e) {
+            console.error("Erreur TTS:", e);
+        }
+    }
+    processNextMessage(); // Passer au message suivant
 }
+
+
+
+
+
+
 
 
 
@@ -1239,26 +1274,49 @@ function hudMeteo(data) {
     const pluie = data.rain_intensity_pct || 0;
     const vent = data.wind_vel * 3.6;
 
+
+
+
     /* ======================================================================
        D. BRIEFING MÉTÉO (PRACTICE UNIQUEMENT)
        ====================================================================== */
-
+/*
     if (
         session === "Practice" &&
         !MemoireMeteo.briefingOk &&
         data.rpm > 500 &&
-        data.speed < 10
+        data.speed < 70
     ) {
-        parler(
-            "METEO_TOPO",
-            `Conditions météo : air ${Math.round(data.air_temp)} degrés, piste ${Math.round(data.track_temp)} degrés. Vent ${Math.round(vent)} km/h.`,
-            1,
-            "INGÉNIEUR"
-        );
+        parler("METEO_TOPO",`Conditions météo : air ${Math.round(data.air_temp)} degrés, piste ${Math.round(data.track_temp)} degrés. Vent ${Math.round(vent)} km/h.`,1,"INGÉNIEUR");
 
         MemoireMeteo.briefingOk = true;
         MemoireMeteo.pisteTemp = data.track_temp;
     }
+*/
+
+	// On initialise cette variable en dehors de la boucle principale
+	let info_meteo_annonce = null; 
+
+	// ... dans votre boucle de données ...
+
+	if (
+		session === "Practice" &&
+		data.SessionUniqueID !== info_meteo_annonce && // Vérifie si c'est une nouvelle session
+		data.rpm > 500 &&
+		data.speed < 10
+	) {
+		parler("METEO_TOPO", `Conditions météo : air ${Math.round(data.air_temp)} degrés, piste ${Math.round(data.track_temp)} degrés. Vent ${Math.round(vent)} km/h.`, 1, "INGÉNIEUR");
+
+		// On marque l'ID de la session actuelle comme "traitée"
+		info_meteo_annonce = data.SessionUniqueID; 
+		
+		// Optionnel : mise à jour de votre objet de mémoire
+		MemoireMeteo.briefingOk = true;
+		MemoireMeteo.pisteTemp = data.track_temp;
+	}
+
+
+
 
     /* ======================================================================
        E. VARIATION TEMPÉRATURE (PRACTICE + RACE)
