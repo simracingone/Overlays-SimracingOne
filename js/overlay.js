@@ -396,58 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('storage', applyVisibility);
 
-// Note: Les fonctions hudDrapeaux, hudClassement, hudRelatif, hudMeteo, hudPiste 
-// doivent être présentes ou complétées selon vos besoins.
 
 
 
-
-
-
-/*
-async function processNextMessage() {
-    if (radioQueue.length === 0) { 
-        isRadioTalking = false; 
-        return; 
-    }
-    
-    isRadioTalking = true;
-    const msg = radioQueue.shift();
-    const expert = CONFIG_TEAM[msg.indexVoix.toString()] || CONFIG_TEAM["1"];
-    
-    const moduleRadio = document.getElementById("module-radio-team");
-    if (moduleRadio) {
-        // 1. Mise à jour et Affichage
-        document.getElementById("radio-img").src = `assets/team/${expert.image}`;
-        document.getElementById("radio-name").textContent = expert.nom.toUpperCase();
-        document.getElementById("radio-message").textContent = msg.texte;
-        moduleRadio.classList.add("active");
-
-        try {
-            // 2. Lancer la voix
-            await fetch('http://127.0.0.1:5000/speak', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: msg.texte, voice_index: msg.indexVoix })
-            });
-            
-            // 3. ATTENDRE LA FIN RÉELLE (C'est ici que ça se joue)
-            await attendreFinDeParole(); 
-            
-            // 4. Petit délai de courtoisie après la fin de la phrase
-            await new Promise(r => setTimeout(r, 800)); 
-
-        } catch (e) { 
-            console.error("Erreur Vocal:", e); 
-        }
-
-        // 5. On n'efface le HUD qu'une fois que tout est fini
-        moduleRadio.classList.remove("active");
-        
-        // Relance la file d'attente
-        setTimeout(processNextMessage, 500);
-    }
-}*/
 
 async function processNextMessage() {
     if (radioQueue.length === 0) {
