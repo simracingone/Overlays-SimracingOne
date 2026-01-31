@@ -69,6 +69,20 @@ def classement(ir, data):
         lap_dist = ir['CarIdxLapDistPct'] or [0.0]*64
         last_laps = ir['CarIdxLastLapTime'] or [0.0]*64
         
+
+        # ======================================================
+        # INCIDENTS PILOTE (AJOUT)
+        # ======================================================
+        try:
+            if 0 <= player_idx < len(drivers_list):
+                data["incidents"] = drivers_list[player_idx].get("Incidents", 0)
+            else:
+                data["incidents"] = 0
+        except Exception:
+            data["incidents"] = 0
+
+        print("[PY] INCIDENTS =", data["incidents"])
+
         # Position du joueur pour le calcul du relatif
         my_dist = lap_dist[player_idx] if (0 <= player_idx < len(lap_dist)) else 0
         

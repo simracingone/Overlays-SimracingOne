@@ -134,7 +134,7 @@ body.edit-mode-active #hud-mode-indicator { color: #00ff88; border-color: #00ff8
 /* ==========================================================
    MODIFICATEURS DDES HUDS HAUTEUR LARGEUR
    ========================================================== */
-#module-radio-team {  width: 250px; height: 340px;  } /* OK */
+#module-radio-team {  width: 400px; height: 450px;  } /* OK */
 #module-leaderboard, #module-relative {   width: 750px;   } /* OK */
 #module-flags {  width: 400px; height: 450px;  } /* OK */
 #module-meteo {  width: 400px; height: 480px;  } /* OK */

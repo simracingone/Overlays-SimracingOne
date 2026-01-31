@@ -1,11 +1,9 @@
-
-// Dans ton overlay.js
 const API_URL = "http://127.0.0.1:8000"; 
 const VOICE_URL = "http://127.0.0.1:5000";
 
 async function fetchData() {
     try {
-        const response = await fetch(`${API_URL}/data`); // Assure-toi que la route /data existe
+        const response = await fetch(`${API_URL}/data`); 
         const data = await response.json();
         hudClassement(data);
         hudPiste(data);
@@ -14,8 +12,7 @@ async function fetchData() {
     }
 }
 
-// Relance la boucle toutes le secondes
-/*setInterval(fetchData, 1000);*/
+
 
 /* ==========================================================================
    1. CONFIGURATION & ÉTAT GLOBAL
@@ -36,9 +33,13 @@ const CONFIG_TEAM = {
 };
 
 let socket = null;
-
 let lastDataReceived = null;
 let lastSessionID = null;
+
+// Timers pour la boucle de rendu
+let timers = { moyen: 0, lent: 0, classement: 0 };
+
+
 let lastTresLent = 0;
 let radioQueue = [];
 let isRadioTalking = false;
@@ -47,16 +48,24 @@ let derniereSessionAnnoncee = "";
 let alertePrioritaire = null;
 let usureMini = 100;
 
+// On initialise cette variable en dehors de la boucle principale
+let info_meteo_annonce = null; 
+	
+	
 let Tactique = { sessionNum: 0, sessionType: "Practice" };
 let MemoireMeteo = { briefingOk: false, pisteTemp: null, pluie: 0, vent: 0, mouille: 0, derniereSession: null };
 let MemoireRelatif = { lastTimeAnalyse: 0, lastTimeConseille: 0 };
 let MemoireClassement = { posPrecedente: null, meilleurTourClasse: {} };
 let MemoireVocale = { derniereAlerte: "", dernierTemps: 0, delaiMin: 2000 };
 
+// je force le rafraicchissement animation navigater pour rester a 60 pas plus !! 
+let lastFrameTime = 0;
+const fpsLimit = 60;
+
 const RAF = { RAPIDE: 16, MOYEN: 200, TRES_LENT: 1000 };
 
 
-
+/*
 let MemoireTactique = {
     tourDuDernierMessage: 0,
     etatDeltaAnnonce: 0,        // 0: rien, 1: super delta, -1: mauvais delta
@@ -64,7 +73,7 @@ let MemoireTactique = {
     meilleurTourClasse: 9999,
     dernierCheckRelatif: 0
 };
-
+*/
 
 //Initialisation des mémoires Classement en course
 if (!window.MemoireTactique) window.MemoireTactique = {};
@@ -87,13 +96,35 @@ function connecter() {
             const data = JSON.parse(event.data);
             if (!data) return;
 
+
+
+			// ===== NORMALISATION DRAPEAUX =====
+			if (data.flags && !data.flag) {
+				data.flag = data.flags;
+			}
+
+			if (typeof data.flag === "string") {
+				data.flag = [data.flag];
+			}
+
+			// Optionnel : sécurisation
+			if (!Array.isArray(data.flag)) {
+				data.flag = [];
+			}
+			
+			 //console.log("FLAGS NORMALISÉS :", data.flag);
+			
+			// ==================================
+
+
+
+
             // --- SYNCHRO ÉTAT SESSION ---
             Tactique.sessionNum = data.session_num;
             Tactique.sessionType = data.sessionType || "Race";
 
             // --- DÉTECTION CHANGEMENT DE SESSION ---
-            // On essaie SessionID, sinon session_num, sinon 0
-            let currentID = data.SessionID ?? data.session_num ?? 0;
+            let currentID = data.SessionID ?? data.session_num ?? 0; // On essaie SessionID, sinon session_num, sinon 0
             
             if (lastSessionID !== null && currentID !== lastSessionID) {
                 console.log("♻️ Changement de session ! ID précédent:", lastSessionID, "-> Nouveau:", currentID);
@@ -128,9 +159,46 @@ function connecter() {
 
 
 
+function updateLoop(timestamp) {
+    requestAnimationFrame(updateLoop);
+    if (!lastDataReceived) return;
+
+	
+    const interval = 1000 / fpsLimit;// Calcul de l'intervalle nécessaire en millisecondes (1000ms / 60fps = 16.67ms)
+    const delta = timestamp - lastFrameTime;	// Si le temps écoulé depuis la dernière image est inférieur à l'intervalle, on sort
+    if (delta < interval) return;
+
+    lastFrameTime = timestamp - (delta % interval);	// On ajuste lastFrameTime en soustrayant le surplus (pour rester précis)
+	if (!lastDataReceived) return;
+
+    // --- RAPIDE (60 FPS) ---
+    hudPerformance(lastDataReceived);
+
+    // --- MOYEN (200ms) : Relatif, Drapeaux, Pneus ---
+    if (timestamp - timers.moyen >= 200) {
+        hudDrapeaux(lastDataReceived);
+        hudPneusDetail(lastDataReceived);
+        hudRelatif(lastDataReceived);
+        timers.moyen = timestamp;
+    }
+
+    // --- LENT (1s) : Météo, Piste, Stratégie ---
+    if (timestamp - timers.lent >= 1000) {
+        hudMeteo(lastDataReceived);
+        hudPiste(lastDataReceived);
+        surveillerPerformancePractice(lastDataReceived);
+        timers.lent = timestamp;
+    }
+
+    // --- TRÈS LENT (5s) : CLASSEMENT (Optimisation CPU) ---
+    if (timestamp - timers.classement >= 5000) {
+        hudClassement(lastDataReceived);
+        timers.classement = timestamp;
+    }
+}
 
 
-
+/*
 function updateLoop(timestamp) {
     requestAnimationFrame(updateLoop);
     if (!lastDataReceived) return;
@@ -154,6 +222,8 @@ function updateLoop(timestamp) {
         this.lastTresLent = timestamp;
     }
 }
+*/
+
 
 // Lancement unique au chargement du DOM
 document.addEventListener('DOMContentLoaded', () => {
@@ -277,19 +347,6 @@ function updateBar(id, pourcent, type) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 function rafRapide(d) {
     if (typeof hudPerformance === "function") hudPerformance(d);
 }
@@ -374,12 +431,23 @@ function resetCompletHUD() {
     MemoireRelatif = { lastTimeAnalyse: 0, lastTimeConseille: 0 };
     
     // Reset de la mémoire Tactique (Celle qui gère les voix Ariane/Antoine)
-    window.MemoireTactique = {
-        tourMessage: 0,
-        etatDelta: 0,
-        dernierVocalPodium: 0,
-        dernierGérard: 0
-    };
+	window.MemoireTactique = {
+		tourMessage: 0,
+		etatDelta: 0,
+		dernierVocalPodium: 0,
+		dernierGérard: 0,
+
+		tourDuDernierMessage: 0,
+		etatDeltaAnnonce: 0,
+		positionClassePrecedente: null,
+		meilleurTourClasse: 9999,
+		dernierCheckRelatif: 0,
+
+		lastFlag: null,
+		lastLap: 0,
+		lastIncCount: 0
+	};
+
 	
 	
 }
@@ -409,58 +477,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('storage', applyVisibility);
 
-// Note: Les fonctions hudDrapeaux, hudClassement, hudRelatif, hudMeteo, hudPiste 
-// doivent être présentes ou complétées selon vos besoins.
-
-
-
 
 
 
 
 async function processNextMessage() {
-    if (radioQueue.length === 0) { 
-        isRadioTalking = false; 
-        return; 
+    if (radioQueue.length === 0) {
+        isRadioTalking = false;
+        // Optionnel : masquer le HUD après un délai quand il n'y a plus de messages
+        setTimeout(() => {
+            const moduleRadio = document.getElementById("module-radio-team");
+            if (moduleRadio) moduleRadio.classList.remove("active");
+        }, 2000);
+        return;
     }
-    
     isRadioTalking = true;
     const msg = radioQueue.shift();
     const expert = CONFIG_TEAM[msg.indexVoix.toString()] || CONFIG_TEAM["1"];
-    
     const moduleRadio = document.getElementById("module-radio-team");
+
     if (moduleRadio) {
-        // 1. Mise à jour et Affichage
+        // MISE À JOUR DES TEXTES ET IMAGES
         document.getElementById("radio-img").src = `assets/team/${expert.image}`;
         document.getElementById("radio-name").textContent = expert.nom.toUpperCase();
+        document.getElementById("radio-dept").textContent = expert.departement; // Vérifiez que cet ID existe
+        document.getElementById("radio-role").textContent = expert.role;        // Vérifiez que cet ID existe
         document.getElementById("radio-message").textContent = msg.texte;
-        moduleRadio.classList.add("active");
 
-        try {
-            // 2. Lancer la voix
-            await fetch('http://127.0.0.1:5000/speak', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: msg.texte, voice_index: msg.indexVoix })
-            });
-            
-            // 3. ATTENDRE LA FIN RÉELLE (C'est ici que ça se joue)
-            await attendreFinDeParole(); 
-            
-            // 4. Petit délai de courtoisie après la fin de la phrase
-            await new Promise(r => setTimeout(r, 800)); 
-
-        } catch (e) { 
-            console.error("Erreur Vocal:", e); 
-        }
-
-        // 5. On n'efface le HUD qu'une fois que tout est fini
-        moduleRadio.classList.remove("active");
+        // AFFICHAGE VISUEL
+        moduleRadio.style.display = "block"; // Force l'affichage
+        moduleRadio.classList.add("active"); // Ajoute l'animation si définie en CSS
         
-        // Relance la file d'attente
-        setTimeout(processNextMessage, 500);
+        try {
+            await fetch('http://127.0.0.1:5000/speak', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ text: msg.texte, voice_index: msg.indexVoix }) 
+            });
+            await attendreFinDeParole(); 
+            await new Promise(r => setTimeout(r, 800));
+        } catch (e) {
+            console.error("Erreur TTS:", e);
+        }
     }
+    processNextMessage(); // Passer au message suivant
 }
+
+
+
+
+
+
 
 
 
@@ -600,15 +667,19 @@ function hudDrapeaux(donnees) {
 							case "NOIRCUTPIT":
 								parler(
 									"NOIRCUTPIT",
-									"Tu à  prit une belle pénalité, les juge t(on pénalisé pour sortie de PIT iérguliere, tu a du passer le ligne continue. attention !",
+									"Tu à  prit une belle pénalité, les juges t'ont pénalisé pour sortie de pit irrégulière, tu a du passer le ligne continue, attention !",
 									10,
 									"DRAPEAUX"
 								);
 								break;
-
-
-
-
+							case "MEATBALL":
+								parler(
+									"MEATBALL",
+									"Drapeau noir et orange ! Rentre au stand immédiatement !",
+									2,
+									"ANTO"
+								);
+								break;
 
 
 
@@ -673,10 +744,16 @@ function hudDrapeaux(donnees) {
 								);
 								break;								
 								
+							    case "MEATBALL":
+								parler(
+									"VOX_MEATBALL",
+									"Drapeau noir et orange ! Rentre au stand immédiatement !",
+									2,
+									"ANTO",
+									true
+								);
+								break;
 								
-								
-
-							// ❌ MEATBALL ignoré
 						}
 						break;
 
@@ -738,7 +815,7 @@ function hudDrapeaux(donnees) {
 									"VOX_MEATBALL",
 									"Drapeau noir et orange ! Rentre au stand immédiatement !",
 									2,
-									"TECHNIQUE",
+									"ANTO",
 									true
 								);
 								break;
@@ -1018,9 +1095,8 @@ function hudRelatif(donnees) {
     // Gérard (Télémétrie) intervient de manière factuelle pour valider ta progression.
     if (delta < -0.3 && delta > -0.6 && (now - (window.MemoireTactique.dernierGérard || 0) > 240000)) {
         const msgsGérard = [
-            "On gagne du temps de manière constante dans ce secteur. Continue sur cette ligne.",
-            "Les relevés sont bons. Tu améliores tes sorties de virage, le delta est au vert.",
-            "C'est propre techniquement. On est sur une phase d'amélioration régulière. Garde ce rythme."
+            `On gagne du temps de manière constante dans ce secteur. Continue sur cette ligne.`,
+            `Les relevés sont bons. Tu améliores tes sorties de virage, le delta est au vert.`
         ];
         parler("DELTA_TECH", msgsGérard[Math.floor(Math.random() * msgsGérard.length)], 4, "GÉRARD");
         window.MemoireTactique.dernierGérard = now;
@@ -1143,29 +1219,29 @@ function surveillerPerformancePractice(data) {
     const currentLap = data.lap || 0;
 
     // --- RESET AU NOUVEAU TOUR ---
-    if (currentLap > MemoireTactique.tourDuDernierMessage) {
-        MemoireTactique.tourDuDernierMessage = currentLap;
-        MemoireTactique.etatDeltaAnnonce = 0; // On autorise de nouvelles annonces pour ce tour
+    if (currentLap > window.MemoireTactique.tourDuDernierMessage) {
+        window.MemoireTactique.tourDuDernierMessage = currentLap;
+        window.MemoireTactique.etatDeltaAnnonce = 0; // On autorise de nouvelles annonces pour ce tour
     }
 
     // --- LOGIQUE DELTA POSITIF (TU AVANCES) ---
     // Si tu gagnes plus d'une seconde et qu'on ne l'a pas encore dit ce tour
-    if (delta <= -1.0 && MemoireTactique.etatDeltaAnnonce !== 1) {
+    if (delta <= -1.0 && window.MemoireTactique.etatDeltaAnnonce !== 1) {
         const messages = [
-            "Delta massif ! Plus d'une seconde d'avance, reste concentré, ce tour est énorme.",
-            "Incroyable rythme, on est à plus d'une seconde de ton meilleur temps. Ne lâche rien !",
-            "Focus, focus ! Le delta est magnifique. +1 seconde d'avance. Ramène-la à la maison !"
+            `Delta massif ! Plus d'une seconde d'avance, reste concentré, ce tour est énorme.`,
+            `Incroyable rythme, on est à plus d'une seconde de ton meilleur temps. Ne lâche rien !`,
+            `Focus, focus ! Le delta est magnifique. +1 seconde d'avance. Ramène-la à la maison !`
         ];
         const randomMsg = messages[Math.floor(Math.random() * messages.length)];
         parler("delta_win", randomMsg, 5); // Ariane (Motivation)
-        MemoireTactique.etatDeltaAnnonce = 1;
+        window.MemoireTactique.etatDeltaAnnonce = 1;
     }
 
     // --- LOGIQUE DELTA NÉGATIF (TU PERDS) ---
     // Si tu perds plus d'une seconde
-    if (delta >= 1.0 && MemoireTactique.etatDeltaAnnonce !== -1) {
-        parler("delta_loss", "Le delta s'effondre, on a perdu une seconde. Respire, reset mental, et prépare le tour suivant.", 5);
-        MemoireTactique.etatDeltaAnnonce = -1;
+    if (delta >= 1.0 && window.MemoireTactique.etatDeltaAnnonce !== -1) {
+        parler("delta_loss", `Le delta s'effondre, on a perdu une seconde. Respire, reset mental, et prépare le tour suivant.`, 5);
+        window.MemoireTactique.etatDeltaAnnonce = -1;
     }
 }
 
@@ -1239,26 +1315,7 @@ function hudMeteo(data) {
     const pluie = data.rain_intensity_pct || 0;
     const vent = data.wind_vel * 3.6;
 
-    /* ======================================================================
-       D. BRIEFING MÉTÉO (PRACTICE UNIQUEMENT)
-       ====================================================================== */
 
-    if (
-        session === "Practice" &&
-        !MemoireMeteo.briefingOk &&
-        data.rpm > 500 &&
-        data.speed < 10
-    ) {
-        parler(
-            "METEO_TOPO",
-            `Conditions météo : air ${Math.round(data.air_temp)} degrés, piste ${Math.round(data.track_temp)} degrés. Vent ${Math.round(vent)} km/h.`,
-            1,
-            "INGÉNIEUR"
-        );
-
-        MemoireMeteo.briefingOk = true;
-        MemoireMeteo.pisteTemp = data.track_temp;
-    }
 
     /* ======================================================================
        E. VARIATION TEMPÉRATURE (PRACTICE + RACE)
@@ -1388,19 +1445,34 @@ function hudPiste(data) {
         }
     }
 
-    // --- 4. INCIDENTS / JOKER / LAP / TIME ---
-    const elInc = document.getElementById("strat-incidents");
-    if (elInc) {
-        elInc.textContent = data.incidents || "0";
-        
-        // --- VOCAL INCIDENTS (DENISE ID 0) ---
-        if (data.incidents > window.MemoireTactique.lastIncCount) {
-            if ((data.incidents - window.MemoireTactique.lastIncCount) >= 2) {
-                parler("INC_DANGER", "ici Denise. On accumule trop d'incidents. Reste entre les lignes blanches.", 0, "DENISE");
-            }
-            window.MemoireTactique.lastIncCount = data.incidents;
+// --- 4. INCIDENTS / JOKER / LAP / TIME ---
+const elInc = document.getElementById("strat-incidents");
+
+// Normalisation du nombre d'incidents (sécurité)
+const inc = Number(data.incidents) || 0;
+
+if (elInc) {
+    elInc.textContent = inc;
+
+    // --- VOCAL INCIDENTS (DENISE ID 0) ---
+    if (inc > window.MemoireTactique.lastIncCount) {
+        if ((inc - window.MemoireTactique.lastIncCount) >= 2) {
+            parler(
+                "INC_DANGER",
+                "ici Denise. On accumule trop d'incidents. Reste entre les lignes blanches.",
+                0,
+                "DENISE"
+            );
         }
+
+        // Mise à jour mémoire (CORRECTE)
+        window.MemoireTactique.lastIncCount = inc;
     }
+}
+
+	
+	
+	
     
     // Joker Status
     const labelJoker = document.getElementById("strat-joker-status");
@@ -1490,11 +1562,9 @@ function hudPerformance(data) {
     if (ÉLÉMENTS_HUD.clutch) ÉLÉMENTS_HUD.clutch.style.height = (data.clutch * 100) + "%";
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initialiserElements(); // CRUCIAL : On cherche les IDs ici
-    connecter();
-    requestAnimationFrame(updateLoop);
-})
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     initialiserElements(); // CRUCIAL : On cherche les IDs ici
     connecter();
