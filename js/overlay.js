@@ -1,3 +1,4 @@
+// Version 3.2.4
 const API_URL = "http://127.0.0.1:8000"; 
 const VOICE_URL = "http://127.0.0.1:5000";
 
@@ -186,7 +187,7 @@ function updateLoop(timestamp) {
     if (timestamp - timers.lent >= 1000) {
         hudMeteo(lastDataReceived);
         hudPiste(lastDataReceived);
-        surveillerPerformancePractice(lastDataReceived);
+        /*surveillerPerformancePractice(lastDataReceived);*/
         timers.lent = timestamp;
     }
 
@@ -639,7 +640,7 @@ function hudDrapeaux(donnees) {
 								if (derniereSessionAnnoncee !== cleVert) {
 									parler(
 										"VOX_VERT_PRAC",
-										"Drapeau vert. Ariane à la radio, on valide les réglages.",
+										`Drapeau vert. Ariane à la radio, on valide les réglages.`,
 										5,
 										"STRATÈGE"
 									);
@@ -650,7 +651,7 @@ function hudDrapeaux(donnees) {
 							case "JAUNE":
 								parler(
 									"VOX_JAUNE",
-									"Attention, danger ! Drapeau jaune !",
+									`Attention, danger ! Drapeau jaune !`,
 									3,
 									"DRAPEAUX"
 								);
@@ -659,7 +660,7 @@ function hudDrapeaux(donnees) {
 							case "NOIRCUT":
 								parler(
 									"VOX_JAUNE",
-									"Petite Pénalité . attention !",
+									`Petite Pénalité . attention !`,
 									0,
 									"DRAPEAUX"
 								);
@@ -667,7 +668,7 @@ function hudDrapeaux(donnees) {
 							case "NOIRCUTPIT":
 								parler(
 									"NOIRCUTPIT",
-									"Tu à  prit une belle pénalité, les juges t'ont pénalisé pour sortie de pit irrégulière, tu a du passer le ligne continue, attention !",
+									`Attention, les commissaires t'ont à l'oeil ! Pénalité pour franchissement de la ligne continue en sortie de pit. Reste concentré, on va perdre du temps sur ce coup-là.`,
 									10,
 									"DRAPEAUX"
 								);
@@ -675,7 +676,7 @@ function hudDrapeaux(donnees) {
 							case "MEATBALL":
 								parler(
 									"MEATBALL",
-									"Drapeau noir et orange ! Rentre au stand immédiatement !",
+									`Drapeau noir et orange ! Rentre au stand immédiatement !`,
 									2,
 									"ANTO"
 								);
@@ -694,7 +695,7 @@ function hudDrapeaux(donnees) {
 								if (derniereSessionAnnoncee !== cleVert) {
 									parler(
 										"VOX_VERT_QUALY",
-										"La piste est libre. Sylvie au rapport : c'est ton tour.",
+										`La piste est libre. Sylvie au rapport : c'est ton tour.`,
 										9,
 										"MENTAL"
 									);
@@ -705,7 +706,7 @@ function hudDrapeaux(donnees) {
 							case "JAUNE":
 								parler(
 									"VOX_JAUNE",
-									"Attention, danger ! Drapeau jaune !",
+									`Attention, danger ! Drapeau jaune !`,
 									3,
 									"DRAPEAUX"
 								);
@@ -714,7 +715,7 @@ function hudDrapeaux(donnees) {
 							case "DAMIER":
 								parler(
 									"VOX_DAMIER_QUALY",
-									"Drapeau à damier. Fin de la séance.",
+									`Drapeau à damier. Fin de la séance.`,
 									9,
 									"MENTAL"
 								);
@@ -722,7 +723,7 @@ function hudDrapeaux(donnees) {
 							case "QUALIFCASSE":
 								parler(
 									"VOX_QUALIFCASSE",
-									"C'est vraiment n'avrant pour les qualifications. philippe, il faut la ramener",
+									`C'est vraiment n'avrant pour les qualifications. philippe, il faut la ramener`,
 									2,
 									"ANTHO"
 								);
@@ -730,7 +731,7 @@ function hudDrapeaux(donnees) {
 							case "NOIRCUT":
 								parler(
 									"VOX_CUT",
-									"philippe, Faut te conscentrer, attention au Pénalité",
+									`Faut te conscentrer, attention au Pénalité`,
 									10,
 									"ANTHO"
 								);
@@ -738,7 +739,7 @@ function hudDrapeaux(donnees) {
 								case "DERNIERTOUR":
 								parler(
 									"VOX_DERNIERTOUR",
-									"Aller , derniere chance. ont tous derriere toi, donne tout",
+									`Aller , derniere chance. ont tous derriere toi, donne tout`,
 									5,
 									"ANTHO"
 								);
@@ -747,7 +748,7 @@ function hudDrapeaux(donnees) {
 							    case "MEATBALL":
 								parler(
 									"VOX_MEATBALL",
-									"Drapeau noir et orange ! Rentre au stand immédiatement !",
+									`Drapeau noir et orange ! Rentre au stand immédiatement !`,
 									2,
 									"ANTO",
 									true
@@ -764,7 +765,7 @@ function hudDrapeaux(donnees) {
 								if (derniereSessionAnnoncee !== cleVert) {
 									parler(
 										"VOX_VERT",
-										"Drapeau vert, en piste Philippe !",
+										`Drapeau vert, en piste  !`,
 										3,
 										"DRAPEAUX"
 									);
@@ -775,7 +776,7 @@ function hudDrapeaux(donnees) {
 							case "JAUNE":
 								parler(
 									"VOX_JAUNE",
-									"Attention, danger ! Drapeau jaune !",
+									`Attention, danger ! Drapeau jaune !`,
 									3,
 									"DRAPEAUX"
 								);
@@ -784,7 +785,7 @@ function hudDrapeaux(donnees) {
 							case "BLEU":
 								parler(
 									"VOX_BLEU",
-									"Drapeau bleu, laisse passer.",
+									`Drapeau bleu, laisse passer.`,
 									6,
 									"TRAFIC"
 								);
@@ -793,7 +794,7 @@ function hudDrapeaux(donnees) {
 							case "DAMIER":
 								parler(
 									"VOX_WIN",
-									"Drapeau à damier ! C'est terminé Philippe.",
+									`Drapeau à damier ! C'est terminé .`,
 									5,
 									"DIRECTION"
 								);
@@ -802,7 +803,7 @@ function hudDrapeaux(donnees) {
 							case "NOIRCUT":
 								parler(
 									"VOX_WIN",
-									"Pénalité pour avoir couper un virage",
+									`Pénalité pour avoir couper un virage`,
 									0,
 									"DIRECTION"
 								);
@@ -813,7 +814,7 @@ function hudDrapeaux(donnees) {
 							case "MEATBALL":
 								parler(
 									"VOX_MEATBALL",
-									"Drapeau noir et orange ! Rentre au stand immédiatement !",
+									`Drapeau noir et orange ! Rentre au stand immédiatement !`,
 									2,
 									"ANTO",
 									true
@@ -974,7 +975,6 @@ function hudClassement(donnees) {
 
 
 
-
 function hudRelatif(donnees) {
 
     /* ======================================================================
@@ -1010,241 +1010,154 @@ function hudRelatif(donnees) {
 
     container.innerHTML = html + '</div>';
 
-/* ======================================================================
-       PARTIE 2 : LOGIQUE VOCALE (ISOLÉE — AUCUN IMPACT HUD)
+
+    /* ======================================================================
+       PARTIE 2 : LOGIQUE VOCALE SÉCURISÉE (ARIANCE, REMY, GÉRARD)
        ====================================================================== */
 
-    /* --- Sécurités minimales (NE COUPENT PAS LE HUD) --- */
-    if (!donnees.speed || donnees.speed < 20) return;
-    if (typeof Tactique === "undefined") return;
-    if (typeof MemoireRelatif === "undefined") return;
+    /* --- 1. Sécurités de base --- */
+    if (!donnees.speed || donnees.speed < 40) return; // Sécurité stands
+    if (typeof Tactique === "undefined" || typeof MemoireRelatif === "undefined") return;
 
     const now = Date.now();
 
-    /* ======================================================================
-       DÉTERMINATION DE LA SESSION (CORRECTION DE L'ERREUR NOT DEFINED)
-       ====================================================================== */
-    let sessionActive = "Practice"; // Valeur par défaut
-    if (Tactique.sessionNum === 1) sessionActive = "Qualify";
-    else if (Tactique.sessionNum === 0) sessionActive = "Practice";
-    else if (Tactique.sessionType) sessionActive = Tactique.sessionType;
-
-    /* ======================================================================
-       👉 VOCAL RELATIF : PRACTICE UNIQUEMENT
-       ====================================================================== */
-
-    if (sessionActive !== "Practice") {
-        return;
+    /* --- 2. Initialisation Mémoire Tactique --- */
+    if (typeof window.MemoireTactique === "undefined") {
+        window.MemoireTactique = { tourMessage: -1, etatDelta: 0, dernierVocalPodium: 0, dernierGerard: 0 };
     }
 
-    /* ======================================================================
-       CONTEXTE PILOTE & DELTA
-       ====================================================================== */
+    /* --- 3. Détermination de la Session (Source: session.py) --- */
+    const sessionActive = donnees.sessionType || "Practice";
 
+    /* --- 4. Contexte Pilote & Delta --- */
     const myIndex = donnees.Relative.findIndex(p => p.IsPlayer);
     if (myIndex === -1) return;
 
     const moi = donnees.Relative[myIndex];
     const devant = donnees.Relative[myIndex - 1];
-    
-    // On récupère le delta brut envoyé par Python
     const delta = parseFloat(donnees.delta_raw || 0);
     const currentLap = donnees.lap || 0;
 
-    // Sécurité MémoireTactique pour éviter une autre erreur ReferenceError
-    if (typeof window.MemoireTactique === "undefined") {
-        window.MemoireTactique = { tourMessage: 0, etatDelta: 0 };
-    }
-
- /* ======================================================================
-       1. ANALYSE PSYCHOLOGIQUE ET TECHNIQUE DU DELTA (MULTI-VOIX)
-       ====================================================================== */
-
+    /* --- 5. Reset du verrou "Une fois par tour" --- */
     if (currentLap > window.MemoireTactique.tourMessage) {
         window.MemoireTactique.tourMessage = currentLap;
-        window.MemoireTactique.etatDelta = 0;
+        window.MemoireTactique.etatDelta = 0; // Autorise Ariane pour ce nouveau tour
     }
 
-    // --- SCÉNARIO A : LE "GOD MODE" (Delta <= -1.0s) ---
-    // Ariane intervient pour booster ton mental quand tu voles sur la piste.
-    if (delta <= -1.0 && window.MemoireTactique.etatDelta !== 1) {
-        const msgsAriane = [
-            `Focus ! On a plus d'une seconde d'avance. Reste sur les rails, ce tour est historique !`,
-            `Le delta est magnifique, plus d'une seconde d'avance. Ne change rien, trajectoires tendues jusqu'à la ligne !`,
-            `C'est le tour de la semaine ! On survole la piste là, reste fluide, ne sur-conduis pas.`,
-            `Regarde-moi ce chrono ! Plus d'une seconde d'avance. Respire, assure tes points de corde, c'est ton tour !`
-        ];
-        parler("DELTA_GOD", msgsAriane[Math.floor(Math.random() * msgsAriane.length)], 5, "ARIANE");
-        window.MemoireTactique.etatDelta = 1;
-    }
-
-    // --- SCÉNARIO B : LE RAPPEL À L'ORDRE (Delta >= 1.2s) ---
-    // Antoine (Chef Mécano) intervient parce qu'une perte de temps signifie souvent une erreur ou une surchauffe.
-    if (delta >= 1.2 && window.MemoireTactique.etatDelta !== -1) {
-        const msgsAntoine = [
-            `Le delta s'effondre, on a perdu plus d'une seconde. On lâche ce tour, refroidis la mécanique et reset pour le prochain.`,
-            `C'est pas grave, oublie ce virage. Stabilise la voiture, on repart à zéro pour le tour suivant.`,
-            `Attention à la voiture, le delta monte trop. Respire, assure tes freinages, on ne veut pas abîmer les gommes.`,
-            `Delta dans le rouge vif. Laisse tomber ce chrono, utilise la fin du tour pour calmer le jeu.`
-        ];
-        parler("DELTA_MECANO", msgsAntoine[Math.floor(Math.random() * msgsAntoine.length)], 2, "ANTOINE");
-        window.MemoireTactique.etatDelta = -1;
-    }
-
-    // --- SCÉNARIO C : L'ANALYSE DE PRÉCISION (Delta entre -0.3s et -0.6s) ---
-    // Gérard (Télémétrie) intervient de manière factuelle pour valider ta progression.
-    if (delta < -0.3 && delta > -0.6 && (now - (window.MemoireTactique.dernierGérard || 0) > 240000)) {
-        const msgsGérard = [
-            `On gagne du temps de manière constante dans ce secteur. Continue sur cette ligne.`,
-            `Les relevés sont bons. Tu améliores tes sorties de virage, le delta est au vert.`
-        ];
-        parler("DELTA_TECH", msgsGérard[Math.floor(Math.random() * msgsGérard.length)], 4, "GÉRARD");
-        window.MemoireTactique.dernierGérard = now;
-    }
-	
     /* ======================================================================
-       2. REMY (ID 6) : GESTION DU TRAFIC & CHASSE AUX RIVAUX
+       👉 CONDITION ARIANE (GOD MODE) - SÉCURISÉE
        ====================================================================== */
 
-    if (!devant || devant.UserName === "OFF TRACK") return;
+    // VERROUS : Practice + Chrono Valide (>0) + Pas encore parlé ce tour
+    const aUnChronoValide = (moi.LastLapTime_raw && moi.LastLapTime_raw > 0);
 
-    const gap = parseFloat(devant.GapRelat);
-    if (isNaN(gap)) return;
-    const memeCategorie = (devant.CarClassID === moi.CarClassID);
-
-    // --- LE LIÈVRE (Pilote de même classe devant < 3s) ---
-    if (memeCategorie && gap < 3.0 && gap > 0.8 && (now - MemoireRelatif.lastTimeAnalyse > 120000)) {
-        parler("PRAC_TARGET", `Cible en vue : ${devant.UserName} est ton lièvre. Il tourne fort, accroche-toi à lui pour faire tomber ton chrono !`, 6, "INGÉNIEUR");
-        MemoireRelatif.lastTimeAnalyse = now;
+    if (sessionActive === "Practice" && aUnChronoValide && window.MemoireTactique.etatDelta === 0) {
+        
+        if (delta <= -1.0) {
+            const msgsAriane = [
+                `Focus ! On a plus d'une seconde d'avance. Reste sur les rails, ce tour est historique !`,
+                `Le delta est magnifique, plus d'une seconde d'avance. Ne change rien, trajectoires tendues !`,
+                `C'est le tour de la semaine ! On survole la piste là, reste fluide !`,
+                `Regarde-moi ce chrono ! Plus d'une seconde d'avance. Respire, c'est ton tour !`
+            ];
+            parler("DELTA_GOD", msgsAriane[Math.floor(Math.random() * msgsAriane.length)], 5, "ARIANE");
+            
+            // On verrouille Ariane pour le reste du tour actuel
+            window.MemoireTactique.etatDelta = 1; 
+        }
     }
 
-    // --- LE PODIUM VIRTUEL (Si tu es P4 ou P5 et que le P3 est proche) ---
-    // Note: nécessite que Python envoie la position (Position)
-    if (donnees.Position > 3 && donnees.Position <= 6 && gap < 2.0 && (now - window.MemoireTactique.dernierVocalPodium > 300000)) {
-        parler("PRAC_PODIUM", `Le podium virtuel est juste là. Le P3 est à ${gap} secondes. C'est le moment de montrer ce que tu as dans le ventre !`, 6, "INGÉNIEUR");
-        window.MemoireTactique.dernierVocalPodium = now;
+    /* ======================================================================
+       👉 AUTRES INTERVENTIONS (REMY, GÉRARD)
+       ====================================================================== */
+
+    // --- GÉRARD : Analyse de précision (Delta entre -0.3s et -0.6s) ---
+    if (sessionActive === "Practice" && delta < -0.3 && delta > -0.6 && aUnChronoValide) {
+        if (now - window.MemoireTactique.dernierGerard > 240000) {
+            const msgsGerard = [
+                `On gagne du temps de manière constante dans ce secteur. Continue sur cette ligne.`,
+                `Les relevés sont bons. Tu améliores tes sorties de virage, le delta est au vert.`
+            ];
+            parler("DELTA_TECH", msgsGerard[Math.floor(Math.random() * msgsGerard.length)], 4, "GÉRARD");
+            window.MemoireTactique.dernierGerard = now;
+        }
     }
 
-    // --- ANALYSE DE RYTHME SIMPLE ---
-    if (!memeCategorie && gap < 1.5 && gap > 0.4 && (now - MemoireRelatif.lastTimeAnalyse > 150000)) {
-        parler("PRAC_REF", `Tu es dans le rythme du pilote devant  ${devant.UserName}. Travaille ta régularité, c'est propre.`, 6, "INGÉNIEUR");
-        MemoireRelatif.lastTimeAnalyse = now;
+    // --- REMY : Gestion du Trafic ---
+    if (devant && devant.UserName !== "OFF TRACK") {
+        const gap = parseFloat(devant.GapRelat);
+        const memeCategorie = (devant.CarClassID === moi.CarClassID);
+
+        // Le Lièvre (Remy)
+        if (sessionActive === "Practice" && memeCategorie && gap < 3.0 && gap > 0.8) {
+            if (now - MemoireRelatif.lastTimeAnalyse > 120000) {
+                parler("PRAC_TARGET", `Cible en vue : ${devant.UserName} est ton lièvre. Accroche-toi !`, 6, "REMY");
+                MemoireRelatif.lastTimeAnalyse = now;
+            }
+        }
+
+        // Trop proche (Coach)
+        if (gap < 0.3 && now - MemoireRelatif.lastTimeConseille > 180000) {
+            parler("PRAC_COOL", `Tu es dans ses échappements. Garde de l'espace.`, 5, "COACH");
+            MemoireRelatif.lastTimeConseille = now;
+        }
     }
 
-    // --- TROP PROCHE (RISQUE DE COLLISION EN PRACTICE) ---
-    if (gap < 0.3 && (now - MemoireRelatif.lastTimeConseille > 180000)) {
-        parler("PRAC_COOL", `Tu es dans ses échappements. Garde de l'espace, ne gâche pas ton run pour un contact inutile.`, 5, "COACH");
-        MemoireRelatif.lastTimeConseille = now;
+    // --- CLASSEMENT : Podium et Pole Position ---
+    const maPosition = donnees.Position || 0;
+    if (now - window.MemoireTactique.dernierVocalPodium > 300000) {
+        if (maPosition === 1) {
+            parler("POLE", "Incroyable ! On vient de prendre la pole position ! T'es le patron.", 5, "ARIANE");
+            window.MemoireTactique.dernierVocalPodium = now;
+        } else if (maPosition > 1 && maPosition <= 3) {
+            parler("PODIUM", `On tient le podium ! P${maPosition} au classement. Reste concentré.`, 6, "REMY");
+            window.MemoireTactique.dernierVocalPodium = now;
+        }
     }
+	
 	
 	/* ======================================================================
-       3. REMY (ID 6) : LA COURSE AU PODIUM & CHRONO CIBLE
+       👉 ÉLOÏSE : ANALYSE DES RECORDS (BEST LAP)
        ====================================================================== */
 
-    const maPosition = donnees.Position || 0;
-    const monMeilleur = donnees.BestLapTime || 999;
-    
-    // On cherche le pilote P3 de la session (Chrono Cible)
-    // Note : On suppose que ton dictionnaire Relative contient le BestLap du P3
-    const piloteP3 = donnees.Relative.find(p => p.Position === 3);
-    const chronoP3 = piloteP3 ? parseFloat(piloteP3.BestLapTime) : 0;
+    // On récupère le best lap actuel du joueur
+    const monBestLap = moi.BestLapTime_raw || 0; // Il faudra s'assurer que Python l'envoie
 
-    // --- SCÉNARIO A : TU ES SUR LE PODIUM (P1, P2 ou P3) ---
-    if (maPosition >= 1 && maPosition <= 3 && (now - (window.MemoireTactique.dernierVocalPodium || 0) > 400000)) {
-        const msgsPodium = [
-            `Excellent travail ! On est virtuellement en P${maPosition}. Garde ce rythme, on veut finir la session là-haut.`,
-            `On tient le podium ! P${maPosition} au classement. La voiture est rapide, reste concentré.`,
-            `Superbe ! On est dans le top 3. On continue le run ou on rentre valider ce chrono ?`
+    // --- SCÉNARIO A : PREMIER CHRONO ENREGISTRÉ (Practice uniquement) ---
+    if (sessionActive === "Practice" && aUnChronoValide && !window.MemoireTactique.premierChronoFait) {
+        const msgsEloiseFirst = [
+            `Premier chrono enregistré. C'est une bonne base de travail, on va pouvoir affiner maintenant.`,
+            `Le premier temps de référence est tombé. On a une base, voyons où on peut gratter des dixièmes.`,
+            `C'est validé. Premier tour propre, le chrono est dans la boîte.`
         ];
-        parler("PODIUM_IN", msgsPodium[Math.floor(Math.random() * msgsPodium.length)], 6, "REMY");
-        window.MemoireTactique.dernierVocalPodium = now;
+        parler("FIRST_LAP", msgsEloiseFirst[Math.floor(Math.random() * msgsEloiseFirst.length)], 4, "ÉLOÏSE");
+        window.MemoireTactique.premierChronoFait = true; // Flag définitif pour la session
     }
 
-    // --- SCÉNARIO B : LE PODIUM EST À PORTÉE (P4 ou P5) ---
-    if (maPosition >= 4 && maPosition <= 5 && chronoP3 > 0 && (now - (window.MemoireTactique.dernierVocalPodium || 0) > 300000)) {
-        const retardPodium = (monMeilleur - chronoP3).toFixed(3);
+    // --- SCÉNARIO B : RECORD BATTU (Practice & Race) ---
+    // On compare le dernier tour au meilleur tour enregistré
+    if (aUnChronoValide && (sessionActive === "Practice" || sessionActive === "Race")) {
         
-        if (retardPodium < 0.5) {
-            parler("PODIUM_HUNT", `Le podium est juste là ! Tu n'es qu'à ${retardPodium} secondes de la P3. C'est le moment de tout donner.`, 6, "REMY");
-        } else {
-            parler("PODIUM_NEAR", `On est en P${maPosition}. Le top 3 tourne en ${piloteP3.BestLapTime}. On a encore un peu de marge à aller chercher.`, 6, "REMY");
+        // Si le dernier tour est égal au best lap (donc on vient de le faire)
+        // ET qu'on ne l'a pas encore annoncé pour ce tour précis
+        if (moi.LastLapTime_raw === monBestLap && monBestLap > 0 && window.MemoireTactique.tourBestAnnonce !== currentLap) {
+            
+            const msgsEloiseBest = [
+                `Nouveau record personnel ! On améliore encore, la voiture est parfaitement exploitée.`,
+                `C'est ton meilleur tour en piste ! Ton rythme est excellent, continue sur cette lancée.`,
+                `Record battu ! Les data sont formelles : tu es plus rapide que jamais aujourd'hui.`
+            ];
+            
+            parler("BEST_LAP", msgsEloiseBest[Math.floor(Math.random() * msgsEloiseBest.length)], 9, "SYLVIE");
+            window.MemoireTactique.tourBestAnnonce = currentLap; // Évite de répéter 50 fois sur le même tour
         }
-        window.MemoireTactique.dernierVocalPodium = now;
-    }
-
-    // --- SCÉNARIO C : TON RIVAL DIRECT (Chrono cible) ---
-    // Si tu es proche de ton record mais que le gars devant est plus rapide
-    if (delta < 0 && memeCategorie && gap < 4 && (now - (window.MemoireTactique.dernierVocalCible || 0) > 300000)) {
-        parler("CHRONO_TARGET", `Analyse : Ton chrono cible, c'est ${devant.UserName}. Il est ${memeCategorie ? 'dans ta classe' : 'plus rapide'}. Utilise-le pour monter au classement.`, 6, "REMY");
-        window.MemoireTactique.dernierVocalCible = now;
     }
 	
-	// --- SCÉNARIO A : LA POLE POSITION (P1) ---
-    // Ariane intervient car c'est un accomplissement stratégique majeur.
-    if (maPosition === 1 && (now - (window.MemoireTactique.dernierVocalPodium || 0) > 300000)) {
-        const msgsPole = [
-            `Incroyable ! On vient de prendre la pole position ! T'es le patron en piste.`,
-            `P1 ! Regarde ce chrono, tu es intouchable aujourd'hui. Superbe boulot !`,
-            `On est en tête de la session ! Personne ne peut s'aligner sur ton rythme, continue comme ça.`
-        ];
-        parler("POLE_POSITION", msgsPole[Math.floor(Math.random() * msgsPole.length)], 5, "ARIANE");
-        window.MemoireTactique.dernierVocalPodium = now;
-    }
-
-    // --- SCÉNARIO B : LE PODIUM (P2 ou P3) ---
-    // Remy (Ingénieur) valide ta place sur la boîte.
-    else if (maPosition > 1 && maPosition <= 3 && (now - (window.MemoireTactique.dernierVocalPodium || 0) > 400000)) {
-        const msgsPodium = [
-            `C'est propre, on est dans le top 3. On tient le podium virtuel, superbe run !`,
-            `On récupère la P${maPosition}. C'est une excellente place, reste bien concentré pour la garder.`,
-            `Podium en vue ! On est P${maPosition}. La voiture est rapide, le rythme est excellent.`
-        ];
-        parler("PODIUM_IN", msgsPodium[Math.floor(Math.random() * msgsPodium.length)], 6, "REMY");
-        window.MemoireTactique.dernierVocalPodium = now;
-    }
 	
-
+	
+	
 	
 }
-
-
-    /* ======================================================================
-       RELATIF SURVEILLANCE
-       ====================================================================== */
-function surveillerPerformancePractice(data) {
-    // On ne travaille que si on est en Practice
-    if (Tactique.sessionType !== "Practice" || !data.delta_raw) return;
-
-    const delta = data.delta_raw;
-    const currentLap = data.lap || 0;
-
-    // --- RESET AU NOUVEAU TOUR ---
-    if (currentLap > window.MemoireTactique.tourDuDernierMessage) {
-        window.MemoireTactique.tourDuDernierMessage = currentLap;
-        window.MemoireTactique.etatDeltaAnnonce = 0; // On autorise de nouvelles annonces pour ce tour
-    }
-
-    // --- LOGIQUE DELTA POSITIF (TU AVANCES) ---
-    // Si tu gagnes plus d'une seconde et qu'on ne l'a pas encore dit ce tour
-    if (delta <= -1.0 && window.MemoireTactique.etatDeltaAnnonce !== 1) {
-        const messages = [
-            `Delta massif ! Plus d'une seconde d'avance, reste concentré, ce tour est énorme.`,
-            `Incroyable rythme, on est à plus d'une seconde de ton meilleur temps. Ne lâche rien !`,
-            `Focus, focus ! Le delta est magnifique. +1 seconde d'avance. Ramène-la à la maison !`
-        ];
-        const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-        parler("delta_win", randomMsg, 5); // Ariane (Motivation)
-        window.MemoireTactique.etatDeltaAnnonce = 1;
-    }
-
-    // --- LOGIQUE DELTA NÉGATIF (TU PERDS) ---
-    // Si tu perds plus d'une seconde
-    if (delta >= 1.0 && window.MemoireTactique.etatDeltaAnnonce !== -1) {
-        parler("delta_loss", `Le delta s'effondre, on a perdu une seconde. Respire, reset mental, et prépare le tour suivant.`, 5);
-        window.MemoireTactique.etatDeltaAnnonce = -1;
-    }
-}
-
 
 
 
@@ -1362,6 +1275,17 @@ function hudMeteo(data) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
    /* ==========================================================================
    4. GESTION DE LA PISTE
    ========================================================================== */
@@ -1445,32 +1369,35 @@ function hudPiste(data) {
         }
     }
 
-// --- 4. INCIDENTS / JOKER / LAP / TIME ---
-const elInc = document.getElementById("strat-incidents");
 
-// Normalisation du nombre d'incidents (sécurité)
-const inc = Number(data.incidents) || 0;
 
-if (elInc) {
-    elInc.textContent = inc;
 
-    // --- VOCAL INCIDENTS (DENISE ID 0) ---
-    if (inc > window.MemoireTactique.lastIncCount) {
-        if ((inc - window.MemoireTactique.lastIncCount) >= 2) {
-            parler(
-                "INC_DANGER",
-                "ici Denise. On accumule trop d'incidents. Reste entre les lignes blanches.",
-                0,
-                "DENISE"
-            );
-        }
+	// --- 4. INCIDENTS / JOKER / LAP / TIME ---
+	const elInc = document.getElementById("strat-incidents");
 
-        // Mise à jour mémoire (CORRECTE)
-        window.MemoireTactique.lastIncCount = inc;
-    }
-}
+	// Normalisation du nombre d'incidents (sécurité)
+	const inc = Number(data.incidents) || 0;
 
-	
+	if (elInc) {
+		elInc.textContent = inc;
+
+		// --- VOCAL INCIDENTS (DENISE ID 0) ---
+		if (inc > window.MemoireTactique.lastIncCount) {
+			if ((inc - window.MemoireTactique.lastIncCount) >= 2) {
+				parler(
+					"INC_DANGER",
+					"ici Denise. On accumule trop d'incidents. Reste entre les lignes blanches.",
+					0,
+					"DENISE"
+				);
+			}
+
+			// Mise à jour mémoire (CORRECTE)
+			window.MemoireTactique.lastIncCount = inc;
+		}
+	}
+
+		
 	
 	
     

@@ -68,20 +68,26 @@ def classement(ir, data):
         class_pos = ir['CarIdxClassPosition'] or [0]*64
         lap_dist = ir['CarIdxLapDistPct'] or [0.0]*64
         last_laps = ir['CarIdxLastLapTime'] or [0.0]*64
-        
+        best_laps = ir['CarIdxBestLapTime'] or [0.0]*64 # Récupère les records de tout le monde
 
         # ======================================================
-        # INCIDENTS PILOTE (AJOUT)
+        # INCIDENTS PILOTE (CORRECTION)
         # ======================================================
-        try:
-            if 0 <= player_idx < len(drivers_list):
-                data["incidents"] = drivers_list[player_idx].get("Incidents", 0)
-            else:
+        # On récupère la valeur directe du SDK (Télémétrie dynamique)
+        # PlayerCarDriverIncidentCount est la variable officielle
+        val_incidents = ir['PlayerCarDriverIncidentCount']
+
+        if val_incidents is not None:
+            data["incidents"] = val_incidents
+        else:
+            # Si la variable n'existe pas (ex: Test Drive), on essaye via DriverInfo
+            try:
+                if 0 <= player_idx < len(drivers_list):
+                    data["incidents"] = drivers_list[player_idx].get("Incidents", 0)
+            except:
                 data["incidents"] = 0
-        except Exception:
-            data["incidents"] = 0
 
-        print("[PY] INCIDENTS =", data["incidents"])
+        #print(f"[PY] INCIDENTS ={data['incidents']}")
 
         # Position du joueur pour le calcul du relatif
         my_dist = lap_dist[player_idx] if (0 <= player_idx < len(lap_dist)) else 0
@@ -113,6 +119,8 @@ def classement(ir, data):
             if diff_dist < -0.5: diff_dist += 1.0
             if diff_dist > 0.5: diff_dist -= 1.0
 
+
+
             # Ajout au dictionnaire
             all_drivers.append({
                 "CarIdx": idx,
@@ -124,6 +132,7 @@ def classement(ir, data):
                 "CarNumber": d.get('CarNumber', '0'),
                 "IR_Display": f"{d.get('IRating', 0)/1000:.1f}k" if (d.get('IRating', 0) or 0) > 0 else "IA",
                 "LicString": d.get('LicString', 'R 0.00'),
+                "BestLapTime_raw": best_laps[idx], 
                 "IsPlayer": (idx == player_idx),
                 "CarClassID": d.get('CarClassID', 0),
                 "CarClassShortName": d.get('CarClassShortName', '---'),
@@ -131,6 +140,7 @@ def classement(ir, data):
                 "RelativeDiff": diff_dist,
                 "GapRelat": f"{diff_dist * 100:+.1f}s",
                 "LastLapTime": _format_time(last_laps[idx]) if idx < len(last_laps) else "--:--.---",
+                "LastLapTime_raw": last_laps[idx],  
                 "Gap": "---",
                 "GapInt": "---"
             })

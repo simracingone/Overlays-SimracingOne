@@ -8,9 +8,13 @@ def calculer_performance(ir, data):
     data["clutch"]   = float(ir['Clutch'] or 0.0)
     data["gear"]     = int(ir['Gear'] or 0)
     
-    # --- VITESSE (Conversion KM/H à la source) ---
-    data["speed"] = round((ir['Speed'] or 0) * 3.6)
-    
+    # Conversion en MPH (ton calcul actuel)
+    speed_mph = (ir['Speed'] or 0) * 2.232
+
+    # On arrondit à l'unité (ex: 120.7 devient 121)
+    data["speed"] = int(round(speed_mph))
+        
+        
     # --- RPM ---
     data["rpm"] = float(ir['RPM'] or 0.0)
     rpm_pct = ir['RPMPercentage']
