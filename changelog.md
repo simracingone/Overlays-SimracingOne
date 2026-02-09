@@ -1,3 +1,33 @@
+# Changelog - iRacing Overlay System
+
+Toutes les modifications notables de ce projet seront documentées dans ce fichier.
+
+---
+
+## [3.3.0] - 2026-02-09
+
+### 🇫🇷 Français
+#### Ajouté
+- **Denise (Alertes Stratégiques)** : Implémentation d'un système de paliers d'incidents. Pour éviter de polluer la concentration du pilote, Denise ne commente plus chaque 1x, mais intervient désormais sur des seuils critiques (4x, 8x, 12x, 15x) avec des messages de mise en garde progressifs.
+- **Vocalisation Dynamique** : Les messages d'incidents sont maintenant contextuels à la gravité et à la proximité de la disqualification.
+
+#### Corrigé
+- **SDK iRacing (Python)** : Résolution d'un bug critique où les incidents restaient à 0 en multijoueur. Le système utilise maintenant une double vérification (Télémétrie brute + `DriverInfo`) pour garantir la fiabilité des données.
+- **Communication Temps Réel** : Stabilisation du flux de données entre le serveur Python et l'interface JS pour assurer une mise à jour instantanée du compteur d'incidents.
+
+---
+
+### 🇺🇸 English
+#### Added
+- **Denise (Strategic Alerts)**: Implementation of an incident threshold system. To maintain driver focus, Denise no longer comments on every 1x, but instead intervenes at critical milestones (4x, 8x, 12x, 15x) with progressive warning messages.
+- **Dynamic Voice-over**: Incident messages are now contextual based on the severity and proximity to disqualification.
+
+#### Fixed
+- **iRacing SDK (Python)**: Fixed a critical bug where incidents stayed at 0 in multiplayer. The system now uses double-checking (Raw Telemetry + `DriverInfo`) to ensure data reliability.
+- **Real-time Communication**: Stabilized the data stream between the Python server and the JS interface to ensure instantaneous incident counter updates.
+
+---
+
 ## [3.2.1] - 2026-01-29
 
 ### 🇫🇷 Français
