@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+<meta
+  http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
+    font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com;
+    img-src 'self' data: http://127.0.0.1:8000;
+    connect-src 'self' ws://127.0.0.1:8000 http://127.0.0.1:5000;
+    media-src 'self' http://127.0.0.1:5000 blob:;
+  ">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overlay SimracingOne v3.2.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Syncopate:wght@700&family=JetBrains+Mono:wght@400;800&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+      <link rel="stylesheet" href="css/style.css">
+	  <script src="js/editor.js"></script>	 
+	 <script src="js/hud-visibility.js"></script>
+	  <script src="js/overlay.js"></script>
+
+</head>
+<body>
+
+
+
+
+<div class="panneau-hud editable-mod" id="module-radio-team">
+    <div class="resizer"></div>
+
+    <header class="en-tete-bleu padding-bas-8 marge-bas-10 affichage-flex alignement-centre">
+        <i class="fa-solid fa-headset c-vert icone-tuile-standard"></i>
+        <span class="police-titre taille-base majuscules ml-10">Radio Team</span>
+    </header>
+
+    <div class="affichage-flex flex-colonne gap-hud">
+        
+        <div class="tuile theme-bleu" style="padding: 5px !important;">
+            <div class="affichage-flex alignement-stretch remplir-espace">
+                
+                <div class="radio-photo-conteneur">
+                    <img id="radio-img" src="assets/team/Antoine.png" alt="Expert" class="radio-photo-img">
+                </div>
+                
+                <div class="infos-expert-container">
+                    <div id="radio-name" class="police-titre c-blanc" style="font-size: 1.2rem; line-height: 1;">NOM EXPERT</div>
+                    
+                    <div class="ligne-info-mini">
+                        <i class="fa-solid fa-microchip c-vert"></i>
+                        <span id="radio-dept" class="police-mono taille-micro c-vert majuscules">Département</span>
+                    </div>
+                    
+                    <div class="ligne-info-mini">
+                        <i class="fa-solid fa-user-gear c-bleu-200"></i>
+                        <span id="radio-role" class="role-italique police-mono taille-micro c-bleu-200">Rôle technique</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tuile theme-gris" style="padding: 5px 10px !important;">
+            <div class="status-live-mini">
+                <span class="dot-blink"></span>
+                <span class="ml-5">LIVE TRANSMISSION</span>
+            </div>
+            <div id="radio-message" class="police-mono taille-petite c-blanc msg-compact">
+                En attente de signal...
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+<div class="panneau-hud editable-mod" id="module-leaderboard">
+    <div class="resizer"></div>
+
+    <header class="affichage-flex alignement-centre padding-bas-12 en-tete-bleu">
+        <div class="affichage-flex alignement-centre ecart-10">
+            <i class="fa-solid fa-list-ol c-vert"></i>
+            <span class="police-titre taille-base majuscules">Classement</span>
+        </div>
+    </header>
+
+    <div class="module-body" id="leaderboard-dynamic-container">
+        <div class="affichage-flex alignement-centre ecart-10 padding-10">
+            <i class="fa-solid fa-circle-notch fa-spin c-bleu-200"></i>
+            <span class="police-mono taille-micro c-bleu-200">Synchronisation iRacing...</span>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="panneau-hud editable-mod" id="module-relative">
+    <div class="resizer"></div>
+
+    <header class="affichage-flex alignement-centre padding-bas-12 en-tete-bleu">
+        <div class="affichage-flex alignement-centre ecart-10">
+            <i class="fa-solid fa-stopwatch c-rouge"></i>
+            <span class="police-titre taille-base majuscules">Relatif</span>
+        </div>
+    </header>
+
+    <div class="module-body" id="relative-drivers-list">
+        <div class="affichage-flex alignement-centre ecart-10 padding-10">
+            <i class="fa-solid fa-circle-notch fa-spin c-bleu-200"></i>
+            <span class="police-mono taille-micro c-bleu-200">Calcul des écarts...</span>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="panneau-hud editable-mod" id="module-flags">
+    <div class="resizer"></div>
+
+    <header class="en-tete-bleu padding-bas-12 marge-bas-30 affichage-flex alignement-centre">
+        <i class="fa-solid fa-flag-checkered c-rouge icone-tuile-standard"></i>
+        <span class="police-titre taille-standard majuscules ml-10">Flags Drapeaux</span>
+    </header>
+
+    <div class="affichage-flex flex-colonne gap-hud">
+        <div class="tuile-brute p-20">
+            
+            <div class="affichage-grille grille-3 gap-15 flex-centre">
+                
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-VERT" class="drapeau-cellule c-vert"><i class="fa-solid fa-flag c-noir"></i></div>
+                    <span class="police-mono label-flag c-vert">Libre / GO</span>
+                </div>
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-JAUNE" class="drapeau-cellule c-jaune"><i class="fa-solid fa-car-burst c-noir"></i></div>
+                    <span class="police-mono label-flag c-jaune">Danger</span>
+                </div>
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-ROUGE" class="drapeau-cellule c-rouge"><i class="fa-solid fa-bolt c-blanc"></i></div>
+                    <span class="police-mono label-flag c-rouge">Disqualification</span>
+                </div>
+
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-BLEU" class="drapeau-cellule c-bleu-500"><i class="fa-solid fa-share c-noir"></i></div>
+                    <span class="police-mono label-flag c-bleu">Dépassement</span>
+                </div>
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-BLANC" class="drapeau-cellule c-blanc"><i class="fa-solid fa-stopwatch c-bleu-900"></i></div>
+                    <span class="police-mono label-flag c-blanc">Last Lap</span>
+                </div>
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-VIOLET" class="drapeau-cellule c-violet"><i class="fa-solid fa-hourglass-half c-blanc"></i></div>
+                    <span class="police-mono label-flag c-jaune">Full Yellow</span>
+                </div>
+
+       
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-DAMIER" class="drapeau-cellule"></div>
+                    <span class="police-mono label-flag c-blanc">Fin de course</span>
+                </div>
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-GRAVIER" class="drapeau-cellule"><i class="fa-solid fa-triangle-exclamation c-noir"></i></div>
+                    <span class="police-mono label-flag c-jaune">Adhérence</span>
+                </div>
+
+               
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-MEATBALL" class="drapeau-cellule">
+                        <i class="fa-solid fa-circle c-orange"></i>
+                    </div>
+                    <span class="police-mono label-flag c-orange">Meatball</span>
+                </div>
+				
+				<div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-STOPGO" class="drapeau-cellule c-orange"><i class="fa-solid fa-hourglass-start c-jaune"></i></div>
+                    <span class="police-mono label-flag c-violet">stop & go</span>
+                </div>
+				
+				
+				 <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-PITPASS" class="drapeau-cellule"><i class="fa-solid fa-pause c-noir"></i></div>
+                    <span class="police-mono label-flag c-violet">pit passage</span>
+                </div>
+				
+                <div class="affichage-flex flex-colonne alignement-centre ecart-8">
+                    <div id="f-AVERT" class="drapeau-cellule" style="overflow: hidden; position: relative;">
+                        <div class="trait-oblique"></div>
+                    </div>
+                    <span class="police-mono label-flag c-jaune">Avertissement</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+<div class="panneau-hud editable-mod" id="module-meteo">
+    <div class="resizer"></div>
+
+    <header class="en-tete-bleu padding-bas-12 marge-bas-30 affichage-flex alignement-centre">
+        <i class="fa-solid fa-cloud-sun c-violet icone-tuile-standard"></i>
+        <span class="police-titre taille-standard majuscules ml-10">Conditions Météo</span>
+    </header>
+
+    <div class="affichage-flex flex-colonne gap-hud">
+        
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-violet">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-temperature-half icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Air</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="val-temp" class="police-mono taille-standard c-blanc interligne-1">--.-</span>
+                        <span class="police-mono taille-petite c-theme ml-10 mb-5">°C</span>
+                    </div>
+                </div>
+                <div class="rail-jauge-v invisible"></div>
+            </div>
+
+            <div class="tuile theme-jaune">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-droplet icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Hum.</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="val-humidite" class="police-mono taille-standard c-blanc interligne-1">--</span>
+                        <span class="police-mono taille-petite c-theme ml-10 mb-5">%</span>
+                    </div>
+                </div>
+                <div class="rail-jauge-v">
+                    <div id="jauge-humidite" class="rem-barre-v bg-theme"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-orange">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-wind icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Vent</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="val-vent-vitesse" class="police-mono taille-standard c-blanc interligne-1">--</span>
+                        <span class="police-mono taille-petite c-theme ml-10 mb-5">km/h</span>
+                    </div>
+                </div>
+                <div class="rail-jauge-v invisible"></div>
+            </div>
+
+            <div class="tuile theme-gris">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-compass icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Dir.</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="val-vent-dir" class="police-mono taille-standard c-blanc interligne-1">---</span>
+                        <span class="police-mono taille-petite c-theme ml-8 mb-5">°</span>
+                    </div>
+                </div>
+                <div class="affichage-flex flex-centre ml-10">
+                    <i id="icone-direction" class="fa-solid fa-location-arrow c-theme icone-tuile-standard"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-vert">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-road icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Track</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="val-piste-temp" class="police-mono taille-standard c-blanc interligne-1">--.-</span>
+                        <span class="police-mono taille-petite c-theme ml-10 mb-5">°C</span>
+                    </div>
+                </div>
+                <div class="rail-jauge-v">
+                    <div id="jauge-piste" class="rem-barre-v bg-theme"></div>
+                </div>
+            </div>
+
+<div class="tuile theme-bleu">
+    <div class="affichage-flex flex-colonne remplir-espace">
+        <div class="affichage-flex alignement-centre mb-10 c-theme">
+            <i class="fa-solid fa-cloud-showers-heavy icone-tuile-standard"></i>
+            <span class="police-mono taille-standard majuscules ml-10">Eau</span>
+        </div>
+        <div class="affichage-flex alignement-bas flex-centre">
+            <span id="icone-pluie" class="mr-10" style="font-size: 1.2rem;">🌞</span>
+            
+            <span id="val-saturation" class="police-mono taille-standard c-blanc interligne-1">--</span>
+            <span class="police-mono taille-petite c-theme ml-10 mb-5">%</span>
+        </div>
+    </div>
+    <div class="rail-jauge-v">
+        <div id="jauge-saturation" class="rem-barre-v bg-theme"></div>
+    </div>
+</div>
+			
+			
+        </div>
+
+    </div>
+</div>
+
+
+
+<div class="panneau-hud editable-mod" id="module-pneus-detail">
+    <div class="resizer"></div>
+	
+    <header class="en-tete-bleu padding-bas-12 marge-bas-30 affichage-flex alignement-centre">
+      <i class="fa-solid fa-gauge-high c-bleu-300"></i>
+        <span class="police-titre taille-standard">Télémétrie Roues & Freins</span>
+    </header>
+    
+
+
+    <div class="affichage-grille grille-2 gap-hud">
+
+        <div class="tuile pneu-tuile bordure-v-ble"> 
+            <div class="police-mono taille-micro c-bleu-300 majuscules titre-tuile padding-5">AVANT GAUCHE</div>
+            <div class="contenu-tuile">
+                <div class="affichage-flex flex-espacement alignement-centre">
+                    <div class="affichage-flex flex-colonne alignement-centre col-frein">
+                        <span class="police-mono taille-puce c-rouge majuscules marge-bas-5"><i class="fa-solid fa-circle-dot"></i> FRN</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-frein"><div id="fl-brake-bar" class="rem-barre-v barre-frein"></div></div>
+                        <div class="police-mono taille-micro c-blanc" id="fl-temp-brake">--°</div>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-pneu-visuel">
+                        <div class="pneu-visuel-conteneur">
+                            <div id="fl-zone-i" class="pneu-zone"></div>
+                            <div id="fl-zone-m" class="pneu-zone"></div>
+                            <div id="fl-zone-o" class="pneu-zone"></div>
+                            <div id="fl-temp-core" class="pneu-label-interne">--°</div>
+                        </div>
+                        <div id="fl-temp-imo" class="police-mono taille-micro c-bleu-200 mt-10">--|--|--</div>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-info-petite">
+                        <span class="police-mono taille-micro c-bleu-300 marge-bas-5">PSI</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-standard"><div id="fl-psi-bar" class="rem-barre-v barre-psi"></div></div>
+                        <span id="fl-pres" class="police-mono taille-micro c-blanc">--.-</span>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-info-petite">
+                        <span class="police-mono taille-micro c-bleu-300 marge-bas-5">USR</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-standard"><div id="fl-wear-bar" class="rem-barre-v barre-usr"></div></div>
+                        <span id="fl-wear-val" class="police-mono taille-micro c-blanc">--%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tuile pneu-tuile bordure-v-bleu-droite"> 
+            <div class="police-mono taille-micro c-bleu-300 majuscules titre-tuile padding-5 text-droite">AVANT DROIT</div>
+            <div class="contenu-tuile">
+                <div class="affichage-flex flex-espacement alignement-centre">
+                    <div class="affichage-flex flex-colonne alignement-centre col-info-petite">
+                        <span class="police-mono taille-micro c-bleu-300 marge-bas-5">USR</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-standard"><div id="fr-wear-bar" class="rem-barre-v barre-usr"></div></div>
+                        <span id="fr-wear-val" class="police-mono taille-micro c-blanc">--%</span>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-info-petite">
+                        <span class="police-mono taille-micro c-bleu-300 marge-bas-5">PSI</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-standard"><div id="fr-psi-bar" class="rem-barre-v barre-psi"></div></div>
+                        <span id="fr-pres" class="police-mono taille-micro c-blanc">--.-</span>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-pneu-visuel">
+                        <div class="pneu-visuel-conteneur">
+                            <div id="fr-zone-o" class="pneu-zone"></div>
+                            <div id="fr-zone-m" class="pneu-zone"></div>
+                            <div id="fr-zone-i" class="pneu-zone"></div>
+                            <div id="fr-temp-core" class="pneu-label-interne">--°</div>
+                        </div>
+                        <div id="fr-temp-imo" class="police-mono taille-micro c-bleu-200 mt-10">--|--|--</div>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-frein">
+                         <span class="police-mono taille-puce c-rouge majuscules marge-bas-5"><i class="fa-solid fa-circle-dot"></i> FRN</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-frein"><div id="fr-brake-bar" class="rem-barre-v barre-frein"></div></div>
+                        <div class="police-mono taille-micro c-blanc" id="fr-temp-brake">--°</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tuile pneu-tuile bordure-v-bleu"> 
+            <div class="police-mono taille-micro c-bleu-300 majuscules titre-tuile padding-5">ARRIÈRE GAUCHE</div>
+            <div class="contenu-tuile">
+                <div class="affichage-flex flex-espacement alignement-centre">
+                    <div class="affichage-flex flex-colonne alignement-centre col-frein">
+                         <span class="police-mono taille-puce c-rouge majuscules marge-bas-5"><i class="fa-solid fa-circle-dot"></i> FRN</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-frein"><div id="rl-brake-bar" class="rem-barre-v barre-frein"></div></div>
+                        <div class="police-mono taille-micro c-blanc" id="rl-temp-brake">--°</div>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-pneu-visuel">
+                        <div class="pneu-visuel-conteneur">
+                            <div id="rl-zone-i" class="pneu-zone"></div>
+                            <div id="rl-zone-m" class="pneu-zone"></div>
+                            <div id="rl-zone-o" class="pneu-zone"></div>
+                            <div id="rl-temp-core" class="pneu-label-interne">--°</div>
+                        </div>
+                        <div id="rl-temp-imo" class="police-mono taille-micro c-bleu-200 mt-10">--|--|--</div>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-info-petite">
+                        <span class="police-mono taille-micro c-bleu-300 marge-bas-5">PSI</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-standard"><div id="rl-psi-bar" class="rem-barre-v barre-psi"></div></div>
+                        <span id="rl-pres" class="police-mono taille-micro c-blanc">--.-</span>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-info-petite">
+                        <span class="police-mono taille-micro c-bleu-300 marge-bas-5">USR</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-standard"><div id="rl-wear-bar" class="rem-barre-v barre-usr"></div></div>
+                        <span id="rl-wear-val" class="police-mono taille-micro c-blanc">--%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tuile pneu-tuile bordure-v-bleu-droite"> 
+            <div class="police-mono taille-micro c-bleu-300 majuscules titre-tuile padding-5 text-droite">ARRIÈRE DROIT</div>
+            <div class="contenu-tuile">
+                <div class="affichage-flex flex-espacement alignement-centre">
+                    <div class="affichage-flex flex-colonne alignement-centre col-info-petite">
+                        <span class="police-mono taille-micro c-bleu-300 marge-bas-5">USR</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-standard"><div id="rr-wear-bar" class="rem-barre-v barre-usr"></div></div>
+                        <span id="rr-wear-val" class="police-mono taille-micro c-blanc">--%</span>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-info-petite">
+                        <span class="police-mono taille-micro c-bleu-300 marge-bas-5">PSI</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-standard"><div id="rr-psi-bar" class="rem-barre-v barre-psi"></div></div>
+                        <span id="rr-pres" class="police-mono taille-micro c-blanc">--.-</span>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-pneu-visuel">
+                        <div class="pneu-visuel-conteneur">
+                            <div id="rr-zone-o" class="pneu-zone"></div>
+                            <div id="rr-zone-m" class="pneu-zone"></div>
+                            <div id="rr-zone-i" class="pneu-zone"></div>
+                            <div id="rr-temp-core" class="pneu-label-interne">--°</div>
+                        </div>
+                        <div id="rr-temp-imo" class="police-mono taille-micro c-bleu-200 mt-10">--|--|--</div>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre col-frein">
+                         <span class="police-mono taille-puce c-rouge majuscules marge-bas-5"><i class="fa-solid fa-circle-dot"></i> FRN</span>
+                        <div class="rail-jauge-v marge-bas-5 rail-frein"><div id="rr-brake-bar" class="rem-barre-v barre-frein"></div></div>
+                        <div class="police-mono taille-micro c-blanc" id="rr-temp-brake">--°</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+<div class="panneau-hud editable-mod" id="module-performance">
+    <div class="resizer"></div>
+
+    <header class="en-tete-bleu padding-bas-12 marge-bas-20 affichage-flex alignement-centre">
+        <i class="fa-solid fa-chart-line c-gris"></i>
+        <span class="police-titre taille-standard majuscules ml-10">Performance</span>
+    </header>
+
+    <div class="affichage-flex flex-colonne gap-hud">
+        
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-jaune">
+                <div class="affichage-flex flex-colonne remplir-espace flex-centre">
+                    <div class="c-theme police-mono taille-standart majuscules">
+                        <i class="fa-solid fa-gauge-high mr-5"></i> VITESSE
+                    </div>
+                    <div class="affichage-flex alignement-bas">
+                        <span id="perf-vitesse" class="police-mono taille-standard c-blanc">---</span>
+                        <small class="c-theme ml-5">KM/H</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tuile theme-violet">
+                <div class="affichage-flex flex-colonne remplir-espace flex-centre">
+                    <div class="c-theme police-mono taille-standart majuscules">
+                        <i class="fa-solid fa-tachometer-alt mr-5"></i> RÉGIME
+                    </div>
+                    <div class="rail-barre largeur-100 h-m mt-10">
+                        <div id="perf-rpm-bar" class="rem-barre bg-theme"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-gris">
+                <div class="affichage-flex flex-colonne remplir-espace flex-centre">
+                    <div class="c-theme police-mono taille-standart majuscules">
+                        <i class="fa-solid fa-cog mr-5"></i> RAPPORT
+                    </div>
+                    <span id="perf-gear" class="police-mono taille-geante c-blanc">N</span>
+                </div>
+            </div>
+
+            <div class="tuile">
+                <div class="affichage-flex flex-espacement alignement-centre remplir-espace">
+                    <div class="affichage-flex flex-colonne alignement-centre theme-bleu">
+                        <div class="rail-jauge-v"><div id="input-clutch" class="rem-barre-v bg-theme"></div></div>
+                        <span class="police-mono taille-standard mt-5 c-theme">EMB</span>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre theme-rouge">
+                        <div class="rail-jauge-v"><div id="input-brake" class="rem-barre-v bg-theme"></div></div>
+                        <span class="police-mono taille-standard mt-5 c-theme">FRN</span>
+                    </div>
+                    <div class="affichage-flex flex-colonne alignement-centre theme-vert">
+                        <div class="rail-jauge-v"><div id="input-throttle" class="rem-barre-v bg-theme"></div></div>
+                        <span class="police-mono taille-standard mt-5 c-theme">ACC</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-bleu">
+                <div class="affichage-flex flex-colonne remplir-espace flex-centre">
+                    <div class="c-theme police-mono taille-standard majuscules">
+                        <i class="fa-solid fa-stopwatch mr-5"></i> DELTA
+                    </div>
+                    <span id="perf-delta-val" class="police-mono taille-standard c-blanc">0.00</span>
+                </div>
+            </div>
+
+            <div class="tuile theme-bleu">
+                <div class="affichage-flex flex-colonne remplir-espace flex-centre">
+                    <div class="c-theme police-mono taille-standard majuscules">
+                        <i class="fa-solid fa-arrows-left-right mr-5"></i> TENDANCE
+                    </div>
+                    <div class="rail-barre largeur-100 h-m mt-10">
+                        <div class="hud-ligne-delta"></div>
+                        <div id="perf-delta-bar" class="rem-barre"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+<div class="panneau-hud editable-mod" id="module-etat-vehicule">
+    <div class="resizer"></div>
+    
+    <header class="en-tete-bleu padding-bas-12 marge-bas-30 affichage-flex alignement-centre">
+        <i class="fa-solid fa-car-battery c-jaune icone-tuile-standard"></i>
+        <span class="police-titre taille-standard majuscules ml-10">État Véhicule</span>
+    </header>
+
+    <div class="affichage-flex flex-colonne gap-hud">
+        
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-jaune">
+                        <i class="fa-solid fa-gas-pump icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Fuel</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="car-fuel-val" class="police-mono taille-standard c-blanc interligne-1">--</span>
+                        <span class="police-mono taille-petite c-bleu ml-10 mb-5">L</span>
+                    </div>
+                </div>
+                <div class="rail-jauge-v">
+                    <div id="car-fuel-bar" class="rem-barre-v"></div>
+                </div>
+            </div>
+
+            <div class="tuile">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-rouge">
+                        <i class="fa-solid fa-temperature-half icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Eau</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="car-water-val" class="police-mono taille-standard c-blanc interligne-1">--</span>
+                        <span class="police-mono taille-petite c-bleu ml-10 mb-5">°C</span>
+                    </div>
+                </div>
+                <div class="rail-jauge-v">
+                    <div id="car-water-bar" class="rem-barre-v"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-vert">
+                        <i class="fa-solid fa-oil-can icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Huile</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="car-oil-val" class="police-mono taille-standard c-blanc interligne-1">---</span>
+                        <span class="police-mono taille-petite c-bleu ml-10 mb-5">°C</span>
+                    </div>
+                </div>
+                <div class="rail-jauge-v">
+                    <div id="car-oil-bar" class="rem-barre-v"></div>
+                </div>
+            </div>
+
+            <div class="tuile">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-violet">
+                        <i class="fa-solid fa-bolt-lightning icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Volts</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="car-battery-val" class="police-mono taille-standard c-blanc interligne-1">--.-</span>
+                        <span class="police-mono taille-petite c-bleu ml-10 mb-5">V</span>
+                    </div>
+                </div>
+                <div class="rail-jauge-v">
+                    <div id="car-battery-bar" class="rem-barre-v"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<div class="panneau-hud editable-mod" id="module-strategie-course">
+    <div class="resizer"></div>
+    <header class="en-tete-bleu padding-bas-12 marge-bas-30 affichage-flex alignement-centre">
+        <i class="fa-solid fa-satellite-dish c-bleu icone-tuile-standard"></i>
+        <span class="police-titre taille-standard majuscules ml-10">Piste</span>
+    </header>
+
+    <div class="affichage-flex flex-colonne gap-hud">
+        
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-orange">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-bleu">
+                        <i class="fa-solid fa-stopwatch icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Last</span>
+                    </div>
+                    <div class="affichage-flex flex-centre">
+                        <span id="strat-last-lap" class="police-mono taille-standard c-blanc">--:--.---</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tuile theme-gris">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-medal icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Best</span>
+                    </div>
+                    <div class="affichage-flex flex-centre">
+                        <span id="strat-best-lap" class="police-mono taille-standard c-blanc">--:--.---</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-bleu">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-rouge">
+                        <i class="fa-solid fa-road icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Lap</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="strat-lap-current" class="police-mono taille-standard c-blanc">--</span>
+                        <span class="police-mono taille-petite c-rouge ml-5 mb-5">/<span id="strat-lap-total">--</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="tuile theme-bleu">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-clock icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Time</span>
+                    </div>
+                    <div class="affichage-flex flex-centre">
+                        <span id="strat-session-time" class="police-mono taille-standard c-blanc">--:--:--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-jaune">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-droplet icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Cons/T</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="strat-fuel-last" class="police-mono taille-standard c-blanc">-.---</span>
+                        <span class="police-mono taille-petite c-theme ml-5 mb-5">L</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tuile theme-violet">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-orange">
+                        <i class="fa-solid fa-gas-pump icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Tours P</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="strat-fuel-laps" class="police-mono taille-standard c-blanc">--.-</span>
+                        <span class="police-mono taille-petite c-theme ml-5 mb-5">T</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="affichage-grille grille-2 gap-hud">
+            <div class="tuile theme-vert">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i class="fa-solid fa-triangle-exclamation icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Inc</span>
+                    </div>
+                    <div class="affichage-flex alignement-bas flex-centre">
+                        <span id="strat-incidents" class="police-mono taille-standard c-blanc">0</span>
+                    </div>
+                </div>
+            </div>
+            <div id="bloc-joker" class="tuile theme-violet">
+                <div class="affichage-flex flex-colonne remplir-espace">
+                    <div class="affichage-flex alignement-centre mb-10 c-theme">
+                        <i id="icone-joker" class="fa-solid fa-star icone-tuile-standard"></i>
+                        <span class="police-mono taille-standard majuscules ml-10">Joker</span>
+                    </div>
+                    <div class="affichage-flex flex-centre">
+                        <span id="strat-joker-status" class="police-mono taille-standard c-blanc">READY</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+</html>

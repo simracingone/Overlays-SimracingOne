@@ -1,0 +1,86 @@
+{
+    "0": {
+        "departement": "Piste",
+        "nom": "Denise Martin",
+        "role": "Directeur de course",
+        "image": "Denise.png",
+        "genre": "female"
+    },
+    "1": {
+        "departement": "Météo",
+        "nom": "Henri Dubois",
+        "role": "Ingénieur météo",
+        "image": "Henri.png",
+        "genre": "male"
+    },
+    "2": {
+        "departement": "Voiture",
+        "nom": "Antoine Roux",
+        "role": "Chef mécanicien",
+        "image": "Antoine.png",
+        "genre": "male"
+    },
+    "3": {
+        "departement": "Drapeaux",
+        "nom": "Vivienne Martin",
+        "role": "Officiel signaux",
+        "image": "Vivienne.png",
+        "genre": "female"
+    },
+    "4": {
+        "departement": "Performance",
+        "nom": "Gerard Petit",
+        "role": "Analyste télémétrie",
+        "image": "Gerard.png",
+        "genre": "male"
+    },
+    "5": {
+        "departement": "Classement",
+        "nom": "Ariane Lambert",
+        "role": "Stratège timing",
+        "image": "Ariane.png",
+        "genre": "female"
+    },
+    "6": {
+        "departement": "Relatifs",
+        "nom": "Remy Fontaine",
+        "role": "Gestion trafic",
+        "image": "Remy.png",
+        "genre": "male"
+    },
+    "7": {
+        "departement": "Physio",
+        "nom": "Eloise Morel",
+        "role": "Coach santé",
+        "image": "Eloise.png",
+        "genre": "female"
+    },
+    "8": {
+        "departement": "Stratégie",
+        "nom": "Charline Durand",
+        "role": "Planification arrêts",
+        "image": "Charline.png",
+        "genre": "female"
+    },
+    "9": {
+        "departement": "Mental",
+        "nom": "Sylvie Vasseur",
+        "role": "Préparateur mental",
+        "image": "Sylvie.png",
+        "genre": "female"
+    },
+    "10": {
+        "departement": "Spotter",
+        "nom": "Thierry Lefebvre",
+        "role": "Observateur piste",
+        "image": "Thierry.png",
+        "genre": "male"
+    },
+    "11": {
+        "departement": "Carburant",
+        "nom": "Fabrice Dubois",
+        "role": "Ingénieur consommation",
+        "image": "Fabrice.png",
+        "genre": "male"
+    }
+}

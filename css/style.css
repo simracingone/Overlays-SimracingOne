@@ -1,0 +1,1450 @@
+/* * ============================================================
+ * COPYRIGHT © 2026 - TOUS DROITS RÉSERVÉS
+ * Projet : Interface Télémétrie HUD 
+ * Auteur : [Mourier Philippe/SimracingOne]
+ * Version : 1.0.2 */
+
+
+/* ==========================================================
+   1. CONFIGURATION DES VARIABLES GLOBALES (RACINE)
+   ========================================================== */
+:root {
+    --arriere-plan: #02050a;                          /* Fond noir profond */
+    --panneau: rgba(10, 18, 32, 0.85);                /* Fond panneau translucide */
+    --bordure: rgba(59, 130, 246, 0.3);               /* Bordure bleue HUD */
+	
+	--white-glow: rgba(255,255,255,0.9);
+	--orange: #f97316;
+    --vert: #10b981;                                   /* Vert système */
+    --rouge: #ef4444;                                  /* Rouge alerte */
+    --violet: #a855f7;                                /* Violet fuel */
+    --jaune: #facc15;                                  /* Jaune RPM */
+    --blanc: #ffffff;                                  /* Blanc pur */
+	--bleu: #3b82f6; /* Ajoutez ceci */
+	
+	--elem-h: 18px;             /* Hauteur commune (Barre, Lic, SR, IR) */
+    --row-h: 32px;              /* Hauteur d'une ligne de pilote */
+    --font-main: 12px;          /* Taille de police générale */
+    --radius: 3px;              /* Arrondi des badges et rectangles */
+    --bg-opacity: 0.7;          /* Opacité du fond du tableau */
+    
+    /* --- COULEURS --- */
+    --vert-me: #10b981;
+    --orange-lapping: #f97316;
+    --bleu-lapped: #3b82f6;
+    --text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+
+
+
+/* ==========================================================
+   2. REMISE À ZÉRO & STYLE DE BASE
+   ========================================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: transparent; }
+body { color: var(--blanc); font-family: 'Inter', sans-serif; padding: 40px 20px; box-sizing: border-box; }
+
+/* ===============================
+   MODULES ÉDITABLES
+   =============================== */
+
+.editable-mod { position: absolute; transform: scale(1); }
+.editable-mod { transition: none; }
+.editable-mod.is-editing { transition: transform 0.1s ease-out; }
+
+
+/* ===============================
+   COIN DE REDIMENSIONNEMENT
+   =============================== */
+.resizer { position: absolute; right: 0; bottom: 0; width: 24px; height: 24px; background: #ffcc00; cursor: nwse-resize; clip-path: polygon(100% 0, 100% 100%, 0 100%); z-index: 100; display: none !important; pointer-events: none; }
+body.edit-mode-active .editable-mod .resizer { display: block !important; pointer-events: auto; }
+
+
+/* ===============================
+   INDICATEUR HUD
+   =============================== */
+#hud-mode-indicator { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 12px 24px; font-weight: bold; border-radius: 4px; background: rgba(0, 0, 0, 0.85); z-index: 10000; display: none; transition: all 0.2s ease; color: #ff4444; border: 2px solid #ff4444; box-shadow: 0 0 20px rgba(255, 68, 68, 0.4); }
+
+/* ÉTAT ON = VERT */
+body.edit-mode-active #hud-mode-indicator { color: #00ff88; border-color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
+
+
+
+.taille-puce { font-size: 8px; }                    /* Taille puce (étiquettes) */
+.taille-micro { font-size: 10px; }                    /* Taille micro (étiquettes) */
+.taille-petite { font-size: 14px; }                    /* Taille petite (infos) */
+.taille-base { font-size: 18px; }                      /* Taille standard */
+.taille-standard { font-size: 22px; }                /* Entre base et large */
+.taille-large { font-size: 26px; }                   /* Juste sous moyenne */
+.taille-moyenne { font-size: 32px; }                  /* Taille intermédiaire */
+.taille-grande { font-size: 54px; }                    /* Taille grande (valeurs) */
+.taille-geante { font-size: 70px; }                    /* Taille géante (rapport) */
+
+.c-bleu { color: var(--bleu-lapped); } 
+
+.c-vert { color: var(--vert); }                        /* Texte vert */
+.c-rouge { color: var(--rouge); }                      /* Texte rouge */
+.c-violet { color: var(--violet); }                    /* Texte violet */
+.c-jaune { color: var(--jaune); }                      /* Texte jaune */
+.c-blanc { color: var(--blanc); }                      /* Texte blanc */
+.c-orange {  color: var(--orange);  }
+.c-noir {    color: #000000 ;}
+.c-gris { color: #95a5a6; }                           /* Texte gris pour l'humidité */
+.c-rose { color: var(--rose-hud) !important; }
+.c-theme, .icone-tuile-standard {
+    text-shadow: 0 0 8px currentColor; /* Utilise la couleur actuelle de l'icône pour briller */
+}
+
+/* ==========================================================
+   5. MODIFICATEURS D'AFFICHAGE (DISPLAY)
+   ========================================================== */
+.affichage-flex { display: flex; }                      /* Activation Flexbox */
+.affichage-grille { display: grid; }                    /* Activation Grille */
+.affichage-bloc { display: block; }                     /* Passage en bloc */
+.flex-colonne { flex-direction: column; }               /* Alignement en colonne */
+.flex-centre { align-items: center; justify-content: center; } /* Centrage total */
+.flex-espacement { justify-content: space-between; }    /* Écartement maximal */
+.alignement-centre { align-items: center; }             /* Alignement vertical */
+.alignement-bas { align-items: flex-end; }              /* Alignement par le bas */
+.remplir-espace { flex-grow: 1; }                       /* Occupation espace libre */
+.ecart-10 { gap: 10px; }                               /* Espacement 10px */
+.ecart-15 { gap: 15px; }                               /* Espacement 15px */
+
+/* ==========================================================
+   6. MODIFICATEURS DE POLICE
+   ========================================================== */
+.police-mono { font-family: 'JetBrains Mono', monospace; font-weight: 800; } /* Style technique */
+.police-titre { font-family: 'Rajdhani', sans-serif; font-weight: 600; }      /* Style titre */
+.police-futuriste { font-family: 'Syncopate', sans-serif; font-weight: 700; } /* Style futuriste */
+
+/* Modificateurs d'épaisseur (Hauteur) */
+.h-xs { height: 4px !important; }   /* Très fin */
+.h-s  { height: 8px !important; }   /* Fin (proche de ton actuel) */
+.h-m  { height: 15px !important; }  /* Moyen */
+.h-l  { height: 25px !important; }  /* Large (idéal pour le Delta) */
+.h-xl { height: 40px !important; }  /* Très large */
+
+/* Optionnel : Ajustement automatique des arrondis pour les grosses jauges */
+.h-l, .h-xl { border-radius: 4px; }
+
+
+
+
+/* ==========================================================
+   MODIFICATEURS DDES HUDS HAUTEUR LARGEUR
+   ========================================================== */
+#module-radio-team {  width: 400px; height: 450px;  } /* OK */
+#module-leaderboard, #module-relative {   width: 750px;   } /* OK */
+#module-flags {  width: 400px; height: 450px;  } /* OK */
+#module-meteo {  width: 400px; height: 480px;  } /* OK */
+#module-pneus-detail { width: 550px; } /* OK */
+#module-performance  { width: 400px; }  /* OK */
+#module-etat-vehicule{ width:400px; height:350px; } /* OK */
+#module-strategie-course{  width: 400px; height: 640px;  } /* OK */
+
+
+/* ==========================================================
+   7. STRUCTURES HUD & UTILITAIRES
+   ========================================================== */
+.panneau-hud {
+    width: 750px;
+    max-width: 950px;
+    margin: 20px auto;
+    padding: 30px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    
+    /* 1. Bordure : Passée de 0.08 à 0.12 pour plus de définition */
+    border: 1px solid rgba(255, 255, 255, 0.12); 
+    
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+
+    /* Dégradé de fond */
+    background-image:
+        radial-gradient(circle at 50% 50%, #0d1a35 0%, #02050a 100%),
+        repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,0,0,0.1) 1px, rgba(0,0,0,0.1) 2px);
+    
+    /* 2 & 3. Ombres optimisées */
+    box-shadow: 
+        /* Ombre extérieure : Crée une séparation physique avec la piste derrière */
+        0 10px 30px rgba(0, 0, 0, 0.5), 
+        
+        /* Ombre interne noire : Garde l'aspect profond sur les bords */
+        inset 0 0 40px rgba(0, 0, 0, 1), 
+        
+        /* Lueur technologique : Passée de 0.1 à 0.15 pour être "à peine plus" présente */
+        inset 0 0 12px rgba(59, 130, 246, 0.15); 
+}
+
+/* Ligne de lumière supérieure ultra-fine (Reflet de bord de verre) */
+.panneau-hud::before { 
+    content: ""; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    height: 1.5px; /* Légèrement plus épais pour la visibilité */
+    
+    /* Dégradé blanc/bleuté pour simuler la lumière sur le chanfrein du verre */
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.1) 15%, 
+        rgba(255, 255, 255, 0.6) 50%, 
+        rgba(255, 255, 255, 0.1) 85%, 
+        transparent 100%);
+    
+    /* L'effet de halo lumineux */
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3); 
+    
+    z-index: 5;
+    pointer-events: none;
+}
+
+
+/* Grilles de mise en page */
+.grille { display: grid; gap: 15px; margin-bottom: 25px; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); background: radial-gradient( circle at center, rgba(255, 255, 255, 0.03) 0%, rgba(0, 0, 0, 0.4) 35%, #000000 80% ) !important; box-shadow: inset 0 0 40px rgba(0, 0, 0, 1), inset 0 0 10px rgba(59, 130, 246, 0.1); }
+
+.grille-1   { grid-template-columns: 1fr; }
+.grille-1-2 { grid-template-columns: 1fr 2fr; }
+.grille-1-3 { grid-template-columns: 1fr 3fr; }
+.grille-1-4 { grid-template-columns: 1fr 4fr; }
+.grille-2   { grid-template-columns: repeat(2, 1fr); } /* Pour ton HUD 2x2 */
+.grille-2-1 { grid-template-columns: 2fr 1fr; }
+.grille-3   { grid-template-columns: repeat(3, 1fr); }
+.grille-3-1 { grid-template-columns: 3fr 1fr; }
+.grille-4   { grid-template-columns: repeat(4, 1fr); }
+.grille-4-1 { grid-template-columns: 4fr 1fr; }
+.grille-5   { grid-template-columns: repeat(5, 1fr); }
+.grille-6   { grid-template-columns: repeat(6, 1fr); }
+
+
+
+/* Cette classe gère l'espace horizontal ET vertical */
+.gap-hud {
+    display: grid;
+    gap: 10px; /* Plus serré comme demandé */
+    height: auto !important; 
+    align-content: start;
+}
+
+
+.tuile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    background: linear-gradient(160deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.98) 100%);
+    
+    /* Correction : Bordure un peu moins opaque pour laisser passer le glow */
+    border: 1px solid rgba(255, 255, 255, 0.4); 
+    
+    /* Correction : Double ombre pour un effet néon puissant */
+    box-shadow: 
+        0 0 5px rgba(0, 200, 255, 0.4),   /* Lueur proche */
+        0 0 15px rgba(0, 200, 255, 0.2),  /* Lueur diffuse */
+        inset 0 0 10px rgba(0, 0, 0, 0.5); /* Profondeur interne */
+}
+
+@keyframes rotate-spatial {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+
+
+/* On s'assure que le contenu ne touche pas les bords */
+.tuile > .remplir-espace {
+    padding: 5px; /* Un petit supplément pour le texte interne */
+}
+
+.contenu-tuile {
+    display: flex;
+    justify-content: center; /* Centrer horizontalement le contenu */
+    margin-top: 10px; /* Légère marge avec le titre */
+}
+
+.affichage-flex.flex-espacement {
+    justify-content: space-around; /* Répartir les éléments de manière égale */
+    align-items: center; /* Centrer verticalement les éléments */
+}
+
+
+
+
+
+/* On réutilise tes % mais appliqués à la hauteur */
+.rem-barre-v.rem-20 { height: 20%; width: 100%; }
+.rem-barre-v.rem-45 { height: 45%; width: 100%; }
+.rem-barre-v.rem-65 { height: 65%; width: 100%; }
+.rem-barre-v.rem-70 { height: 70%; width: 100%; }
+.rem-barre-v.rem-80 { height: 80%; width: 100%; }
+
+
+
+/* Classes d'alignement pour remplacer le style inline */
+.icone-titre {
+    width: 35px;
+    font-size: 1.8em;
+    text-align: center;
+}
+
+.icone-tuile-standard {
+    width: 30px;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+
+
+
+/* La barre qui monte (l'élément interne) */
+.rem-barre-v {
+    position: absolute;
+    bottom: 0;            /* Part du bas */
+    left: 0;
+    width: 100%;          /* Prend toute la largeur du rail */
+    height: 0%;           /* Modifié par le JS */
+    background-color: #ffa502; /* Couleur par défaut */
+    transition: height 0.05s ease-out; /* Mouvement fluide */
+    z-index: 2;           /* S'assure d'être au dessus du fond */
+
+}
+
+
+.conteneur-cercle { width: 65px; height: 65px; position: relative; }
+.jauge-circulaire { width: 100%; height: 100%; }
+.cercle-fond { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 3; }
+.cercle-remplissage { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray 0.5s ease; stroke: var(--bleu-300); }
+
+
+
+
+/* Classes pour la zone de diagnostic */
+/* Pour que le bloc de diagnostic respire et ne soit pas écrasé */
+.zone-log { margin-top: 20px !important; width: 100% !important; display: block !important; }
+.contenu-log { line-height: 1.8; /*opacity: 0.7; */ }
+
+
+
+/* Utilitaires de marge */
+.mr-10 { margin: 10px; }
+.mt-10 { margin-top: 10px; }
+.mb-10 { margin-bottom: 10px; }
+.ml-10 { margin-left: 10px !important; }
+.p-10 { padding: 10px; }
+.mr-5 { margin-right: 5px; }
+
+
+
+/* Utilitaires de dimensions */
+.hauteur-100 { height: 100%; }
+.largeur-100 { width: 100%; }
+.largeur-400 { width: 400px; }
+.hauteur-12 { height: 12px; }
+.marge-bas-30 { margin-bottom: 30px; }
+.padding-bas-12 { padding-bottom: 12px; }
+.majuscules { text-transform: uppercase; }
+.interligne-1 { line-height: 1; }
+
+/* Modificateurs de rem (%) */
+.rem-20 { height: 20%; }
+.rem-30 { width: 30%; }
+.rem-h-45 { height: 45%; }
+.rem-w-65 { width: 65%; }
+.rem-70 { width: 70%; }
+.rem-80 { height: 80%; }
+.rem-84 { width: 84%; }
+
+/* Styles visuels complexes  .en-tete-bleu {    margin-bottom: 30px !important;    display: flex !important;}*/
+.en-tete-rouge { border-bottom: 2px solid var(--rouge); margin-bottom: 30px !important;}
+.en-tete-bleu { border-bottom: 2px solid var(--bleu-500);margin-bottom: 30px !important; }
+
+
+
+.degrade-moteur { background: linear-gradient(90deg, var(--vert), var(--jaune), var(--rouge)); }
+
+.rem-delta { background-color: var(--vert); box-shadow: 0 0 10px var(--vert); }
+.ligne-delta { position: absolute; left: 50%; width: 5px; height: 100%; background: #fff; z-index: 2; }
+.hud-rem-delta { position:absolute; right:50%; }
+
+.clignotant { animation: clignotement 1s infinite steps(1); }
+@keyframes clignotement { 50% { opacity: 0; } }
+
+
+
+
+
+
+/* ==========================================================
+   LOGIQUES SPÉCIALES
+   ========================================================== */
+
+/* --- EFFET SPATIAL POUR LA LIGNE DU JOUEUR --- */
+.lb-row.is-me {
+    position: relative;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 1;
+    overflow: hidden; /* Important pour contenir l'effet de lumière */
+}
+
+/* Le faisceau lumineux qui tourne autour de la ligne */
+.lb-row.is-me::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+        transparent, 
+        rgba(255, 255, 255, 0.1), /* Lumière très douce */
+        rgba(255, 255, 255, 0.4), /* Point chaud */
+        rgba(255, 255, 255, 0.1), 
+        transparent 30%
+    );
+    animation: rotate-spatial 4s linear infinite;
+    z-index: -2;
+	will-change: transform; /* Indique au navigateur d'optimiser cette couche */
+}
+
+/* Le masque interne pour créer l'effet de bordure fine */
+.lb-row.is-me::after {
+    content: "";
+    position: absolute;
+    inset: 1px; /* C'est ici qu'on définit l'épaisseur de la bordure (1px) */
+    background: var(--panneau); /* On remet le fond du HUD à l'intérieur */
+    border-radius: inherit;
+    z-index: -1;
+    display: block !important; /* On le réactive */
+}
+
+
+
+
+
+
+/* ANNULATION TOTALE DU DÉCALAGE EN RELATIF */
+.lb-row.neutral-relatif,
+.lb-row.neutral-relatif.is-me {
+    transform: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 8px;
+}
+
+/* RELATIF = GRILLE PROPRE, SANS COLONNE FANTÔME */
+#relative-drivers-list .lb-row {
+    display: grid;
+    grid-template-columns:
+        32px   /* pos */
+        44px   /* car */
+        1fr    /* name */
+        42px   /* lic */
+        52px   /* ir */
+        48px   /* sr */
+        32px   /* gain */
+        64px;  /* gap */
+    align-items: center;
+}
+
+/* ANNULATION ABSOLUE DE TOUT DÉCALAGE VISUEL */
+#relative-drivers-list .lb-row,
+#relative-drivers-list .lb-row.is-me {
+    transform: none !important;
+    margin: 0 !important;
+    left: 0 !important;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* AUCUN PSEUDO-ÉLÉMENT EN RELATIF */
+#relative-drivers-list .lb-row::before,
+#relative-drivers-list .lb-row::after {
+    display: none !important;
+    content: none !important;
+}
+
+
+
+/* TRAFIC */
+.is-lapping { background: rgba(249, 115, 22, 0.15); animation: alert-relative 1.5s infinite; }
+
+
+
+
+.is-lapped { background: rgba(59, 130, 246, 0.1); }
+.is-lapped .col-name { color: var(--bleu-lapped); }
+
+@keyframes alert-relative {
+    0%, 100% { background: rgba(249, 115, 22, 0.2); }
+    50% { background: rgba(249, 115, 22, 0.05); }
+}
+
+/* GAINS */
+.gain-up   { color: var(--vert-me); }
+.gain-down { color: #ef4444; }
+
+/* LICENCES */
+.lic-R { background-color: #e81c1c !important; color: #fff; }
+.lic-D { background-color: #fc8803 !important; color: #fff; }
+.lic-C { background-color: #f7e307 !important; color: #000 !important; }
+.lic-B { background-color: #009e05 !important; color: #fff; }
+.lic-A { background-color: #0062ff !important; color: #fff; }
+.lic-P { background-color: #000000 !important; color: #fff; border: 1px solid #fff; }
+
+/* CATÉGORIES */
+.cat-color-0 { background-color: #c62828 !important; }
+.cat-color-1 { background-color: #1565c0 !important; }
+.cat-color-2 { background-color: #2e7d32 !important; }
+.cat-color-3 { background-color: #ef6c00 !important; }
+.cat-color-4 { background-color: #6a1b9a !important; }
+
+/* SÉPARATEUR GAP */
+.gap-separator {
+    text-align: center;
+    font-size: 10px;
+    color: #555;
+    background: rgba(255,255,255,0.02);
+    line-height: 14px;
+    letter-spacing: 3px;
+}
+
+
+/* ==========================================================
+   SYSTÈME DE TÉLÉMÉTRIE PNEUS (HUD)
+   ========================================================== */
+.titre-tuile {
+    text-align: left !important;
+    width: 100%;
+    display: block;
+}
+
+/* --- Conteneurs de Tuiles --- */
+#module-pneus-detail .tuile {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    padding: 12px;
+    position: relative;
+}
+
+/* --- Correction de la superposition --- */
+.conteneur-pneu-stable {
+    display: flex;
+    justify-content: space-around; /* Mieux réparti que space-between */
+    align-items: flex-end; 
+    width: 100%;
+    height: 120px; /* On donne un peu plus d'air */
+    padding-bottom: 5px;
+}
+
+.col-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 45px; /* Largeur mini pour éviter les chevauchements */
+}
+
+.col-usr   { width: 30px; }
+.col-pneu  { width: 70px; }
+.col-psi   { width: 30px; }
+/* Structure des colonnes */
+.col-frein { width: 30px; flex-shrink: 0; }
+.col-info-petite { width: 45px; flex-shrink: 0; }
+.col-pneu-visuel { flex-grow: 1; }
+
+/* Rails des jauges */
+.rail-standard {
+    width: 8px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.rail-frein {
+    width: 8px;
+    height: 45px;
+    background: rgba(255, 0, 0, 0.1);
+}
+
+
+/* Styles des barres */
+.barre-psi { background: #3498db; height: 0%; }
+.barre-usr { background: #2ed573; height: 0%; width: 100%; }
+.barre-frein { background: #ff4757; height: 0%; }
+
+/* Icônes et labels */
+.icone-fixe { width: 14px; text-align: center; }
+
+/* Ajustement spécifique pour la colonne Freins */
+.col-brake {
+    min-width: 70px;
+    border-left: 1px solid rgba(255,255,255,0.1);
+    padding-left: 5px;
+}
+
+
+.barre-remplissage {
+    width: 100%;
+    height: 0%; /* Piloté par le JS via .style.height */
+    background: #3498db;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+}
+
+/* Couleurs dynamiques pour l'usure (à appliquer via JS) */
+.barre-remplissage.warn { background: #f97316 !important; }
+.barre-remplissage.crit { background: #ef4444 !important; }
+
+/* --- Visuel Central du Pneu --- */
+.pneu-visuel-conteneur {
+    width: 50px;
+    height: 80px;
+    border-radius: 6px;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: #111;
+    margin-bottom: 5px;
+}
+
+.pneu-zone { 
+    flex: 1; 
+    height: 100%; 
+    transition: background 0.4s ease; 
+    border-right: 1px solid rgba(0, 0, 0, 0.3); 
+}
+
+.pneu-zone:last-child { border-right: none; }
+
+.pneu-label-interne {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    pointer-events: none;
+    text-shadow: 0 0 5px rgba(0,0,0,1);
+    z-index: 2;
+}
+
+/* --- Bloc Freins (Brakes) --- */
+.ligne-brake {
+    font-size: 10px !important;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+.flex-fin { justify-content: flex-end; }
+
+/* --- Typographie et Détails --- */
+.label-micro {
+    font-size: 8px;
+    color: #3498db;
+    font-weight: bold;
+    margin-top: 2px;
+}
+
+/* On réduit la taille des textes pour que ça tienne sur une ligne */
+.val-micro { 
+    font-size: 10px !important; 
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff;
+    margin-top: 4px;
+    white-space: nowrap; /* Empêche le retour à la ligne moche */
+}
+
+.bordure-gauche-grise { border-left: 1px solid rgba(255, 255, 255, 0.15); }
+.bordure-droite-grise { border-right: 1px solid rgba(255, 255, 255, 0.15); }
+
+/* --- Lueurs Thermiques (Pneu Zones) --- */
+.pneu-zone.lueur-vert      { background-color: #10b981; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+.pneu-zone.lueur-orange    { background-color: #f59e0b; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+.pneu-zone.lueur-bleu-300  { background-color: #3498db; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+.pneu-zone.lueur-rouge     { background-color: #ef4444; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+
+
+
+/* La barre de remplissage à l'intérieur */
+.barre-remplissage {
+    width: 100% !important; /* Elle remplit la largeur du rail */
+    height: 0%;            /* Piloté par le JS */
+    transition: height 0.3s ease, background 0.3s ease;
+}
+
+
+
+/* Ordre : Violet, Jaune, Orange, Gris, Vert, Bleu */
+
+/* Thème 1 : Violet */
+.theme-violet .c-theme { color: var(--violet) !important; }
+.theme-violet .bg-theme { background-color: var(--violet) !important; }
+
+/* Thème 2 : Jaune */
+.theme-jaune .c-theme { color: var(--jaune) !important; }
+.theme-jaune .bg-theme { background-color: var(--jaune) !important; }
+
+/* Thème 3 : Orange */
+.theme-orange .c-theme { color: var(--orange) !important; }
+.theme-orange .bg-theme { background-color: var(--orange) !important; }
+
+/* Thème 4 : Gris */
+.theme-gris .c-theme { color: #95a5a6 !important; }
+.theme-gris .bg-theme { background-color: #95a5a6 !important; }
+
+/* Thème 5 : Vert */
+.theme-vert .c-theme { color: var(--vert) !important; }
+.theme-vert .bg-theme { background-color: var(--vert) !important; }
+
+/* Thème 6 : Bleu */
+/* Thème Bleu (Correction pour forcer l'affichage) */
+.theme-bleu .c-theme { 
+    color: var(--bleu-hud, #0088ff) !important; 
+}
+
+.theme-bleu .bg-theme { 
+    background-color: var(--bleu-hud, #0088ff) !important; 
+    display: block !important; /* Force l'affichage au cas où */
+    min-width: 100% !important; 
+}
+
+
+
+
+
+.rail-barre { position: relative; }
+
+
+.rail-jauge-global {
+    width: 40px;
+    background: rgba(255,255,255,0.05);
+}
+
+/* --- Jauges Verticales (Usure & PSI) --- */
+.rail-barre-v, 
+.rail-jauge-v {
+    width: 10px;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    margin: 0 auto 6px auto;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+
+
+
+
+/* ==========================================================
+   FLAG - STYLE COMPLET (12 DRAPEAUX)
+   ========================================================== */
+
+
+/* 1. ÉTAT PAR DÉFAUT (ÉTEINT) */
+.drapeau-cellule { 
+    background: rgba(255, 255, 255, 0.02) !important; /* Fond très sombre */
+    height: 58px;
+    width: 78px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    border-radius: 6px; 
+    
+    /* --- LA MODIFICATION ICI --- */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Bordure gris clair semi-transparente */
+    opacity: 0.4 !important; /* On augmente un peu l'opacité pour voir les bords et icônes */
+    /* ---------------------------- */
+    
+    transition: all 0.2s ease; 
+    color: rgba(255, 255, 255, 0.1); /* Icônes très discrètes */
+    position: relative;
+    overflow: hidden;
+}
+
+/* 2. ÉTAT ACTIF (ALLUMÉ) */
+.drapeau-cellule.actif { 
+    opacity: 1 !important; 
+    transform: scale(1.05);
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    color: #ffffff; /* Texte/Icone blanc sur fond de couleur */
+    z-index: 10;
+}
+/* 3. COULEURS DE FOND (UNIQUEMENT SI ACTIF) */
+/* On utilise des classes spécifiques pour forcer la couleur de fond */
+.drapeau-cellule.actif.c-vert      { background-color: #2ecc71 !important; }
+.drapeau-cellule.actif.c-jaune      { background-color: #f1c40f !important; color: #000 !important; }
+.drapeau-cellule.actif.c-rouge      { background-color: #e74c3c !important; }
+.drapeau-cellule.actif.c-bleu-500   { background-color: #3498db !important; }
+.drapeau-cellule.actif.c-blanc      { background-color: #ecf0f1 !important; color: #000 !important; }
+.drapeau-cellule.actif.c-violet     { background-color: #9b59b6 !important; }
+.drapeau-cellule.actif.c-orange     { background-color: #e67e22 !important; }
+
+/* 4. STYLES SPÉCIFIQUES COMPLEXES */
+#f-MEATBALL.actif { background-color: #000 !important; border: 2px solid #ff6600 !important; color: #ff6600 !important; }
+
+#f-NOIR.actif { 
+    background-color: #000 !important; 
+    border: 3px solid #ff0000 !important; 
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6); 
+}
+
+#f-GRAVIER.actif { 
+    background: repeating-linear-gradient(-45deg, #ffc107, #ffc107 10px, #fd7e14 10px, #fd7e14 20px) !important; 
+    border: 2px solid #fff !important;
+}
+
+#f-DAMIER.actif {
+    background-image: conic-gradient(
+        #000 90deg, 
+        #fff 90deg 180deg, 
+        #000 180deg 270deg, 
+        #fff 270deg
+    ) !important;
+    
+    /* 26px : donne environ 3 gros carreaux sur la largeur de 78px */
+    background-size: 26px 26px !important; 
+    
+    border: 2px solid #fff !important;
+    opacity: 1 !important;
+}
+
+/* Le conteneur (fond noir) */
+#f-AVERT.actif {
+    background-color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    position: relative;
+    overflow: hidden; /* Important pour que le trait ne dépasse pas */
+}
+
+/* Le trait blanc en diagonale */
+#f-AVERT.actif .trait-oblique {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 140%;    /* Assez long pour couvrir la diagonale */
+    height: 8px;    /* Épaisseur du trait (ajuste ici) */
+    background: #ffffff;
+    transform: translate(-50%, -50%) rotate(36deg); /* Centre et tourne */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    z-index: 1;
+}
+
+
+
+
+/* --- 2. LES NOUVEAUX DRAPEAUX DE STAND --- */
+/* Stop & Go : On peut lui donner un style proche du NOIR mais en orange */
+#f-STOPGO.actif {
+    background-color: #000 !important;
+    border: 3px solid #e67e22 !important; /* Orange */
+    box-shadow: 0 0 15px rgba(230, 126, 34, 0.7);
+}
+
+/* Pit Passage : Style simple et clair */
+#f-PIT.actif {
+    background-color: #e67e22 !important;
+    color: #000 !important;
+    border: 2px solid #fff !important;
+}
+
+/* --- 3. FIX DU DRAPEAU BLANC --- */
+/* Dans ton HTML tu as c-blanc, assure-toi que l'icône est lisible */
+#f-BLANC.actif {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #cccccc !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* 5. TRAIT OBLIQUE (Avertissements) */
+.trait-oblique { display: none; }
+.actif .trait-oblique { 
+    display: block;
+    position: absolute;
+    width: 150%;
+    height: 6px; 
+    background: #ffffff;
+    transform: rotate(35deg);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+/* On définit label-flag pour ne pas toucher aux autres HUD */
+.label-flag {
+    font-size: 0.75rem !important; /* Taille ajustée pour l'agrandissement */
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+
+/* Assurer que l'icône passe au dessus du trait */
+.drapeau-cellule.actif i {
+    position: relative;
+    z-index: 2;
+    font-size: 1.8rem;
+}
+
+
+
+/* Couleur de fond automatique pour les drapeaux simples */
+.drapeau-cellule.actif:not(#f-NOIR):not(#f-MEATBALL):not(#f-AVERTISSEMENT):not(#f-DAMIER):not(#f-GRAVIER) {
+    background-color: currentColor;
+}
+
+
+/* Pour les drapeaux de couleur simple */
+.drapeau-cellule.actif.c-vert { background-color: #2ecc71; }
+.drapeau-cellule.actif.c-jaune { background-color: #f1c40f; }
+.drapeau-cellule.actif.c-rouge { background-color: #e74c3c; }
+.drapeau-cellule.actif.c-bleu-500 { background-color: #3498db; }
+.drapeau-cellule.actif.c-blanc { background-color: #ecf0f1; }
+.drapeau-cellule.actif.c-violet { background-color: #9b59b6; }
+.drapeau-cellule.actif.c-orange { background-color: #e67e22; }
+
+
+
+#f-AVERT.actif .trait-oblique {
+    background: #ffffff !important;
+    box-shadow: 0 0 8px #fff;
+}
+
+/* NOIR (Ton style d'origine) */
+#f-NOIR.actif { 
+    background-color: #000000 !important; 
+    border: 3px solid #ff0000 !important; 
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.7); 
+}
+
+/* GRAVIER (Ton style d'origine) */
+#f-GRAVIER.actif { 
+    background: repeating-linear-gradient(-45deg, #ffc107, #ffc107 10px, #fd7e14 10px, #fd7e14 20px); 
+    border: 3px solid #fd7e14 !important;
+}
+
+/* DAMIER */
+#f-DAMIER.actif { 
+    background-image: conic-gradient(#000 90deg, #fff 90deg 180deg, #000 180deg 270deg, #fff 270deg); 
+    background-size: 16px 16px; 
+    border: 2px solid #fff !important; 
+}
+
+
+/* --- ANIMATIONS --- */
+@keyframes blinker {
+    50% { opacity: 0.3; }
+}
+
+@keyframes pulse-border-orange {
+    from { box-shadow: 0 0 10px rgba(253, 126, 20, 0.5); }
+    to { box-shadow: 0 0 25px rgba(255, 193, 7, 0.9); }
+}
+
+/* Style des labels sous les drapeaux */
+#module-flags .police-mono {
+    text-align: center;
+    margin-top: 8px;
+    display: block;
+    width: 100%;
+}
+
+
+
+
+
+
+/* ==========================================================
+   PERFORMANCES HUD - FIX COMPLET DES JAUGES
+   ========================================================== */
+
+
+.hud-gap-performance { grid-template-rows: 1fr 1fr; }
+
+
+/* La base de tes rails horizontaux */
+.rail-barre.h-m {
+    height: 15px; /* Augmente ici pour des jauges plus grosses */
+    background: rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+/* La barre qui se remplit */
+.rem-barre {
+    height: 100%;
+    width: 0%; /* Piloté par le JS */
+    transition: width 0.1s linear;
+}
+
+/* Spécifique au Delta pour qu'il puisse aller à gauche/droite */
+#perf-delta-bar {
+    position: absolute;
+    left: 50%; /* Départ au milieu */
+}
+
+.hud-ligne-delta {
+    position: absolute;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background: white;
+    z-index: 2;
+}
+
+
+
+
+
+
+
+
+
+/* ==========================================================
+   CLASSEMENT - RELATF
+   ========================================================== */
+
+.capsule-classe { margin-bottom: 25px; }
+
+.titre-categorie {
+    display: inline-block;
+    padding: 4px 15px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #ffffff;
+    border-radius: var(--radius) var(--radius) 0 0;
+    margin-left: 10px;
+    letter-spacing: 1px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
+}
+
+.lb-table {
+    background: transparent !important; /* On enlève le fond noir solide du tableau */
+    border: none !important; 
+    backdrop-filter: none !important;
+}
+
+.lb-row {
+    display: flex;
+    align-items: center;
+    height: var(--row-h);
+    padding: 0 10px;
+    font-size: var(--font-main);
+    transition: background 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    /* --- EFFET TRANSPARENT --- */
+    background: rgba(255, 255, 255, 0.03); /* Fond blanc ultra-léger */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Séparateur très discret */
+    
+    /* Optionnel : Flou derrière la ligne pour détacher le texte */
+    backdrop-filter: blur(2px); 
+    -webkit-backdrop-filter: blur(2px);
+    
+    margin-bottom: 2px; /* Petit espace entre les lignes pour l'effet flottant */
+    border-radius: 4px; /* Un léger arrondi renforce l'aspect "capsule" */
+}
+
+
+.col-name, .col-time, .col-gap, .badge-sr, .badge-ir {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 1); /* Ombre noire plus marquée */
+}
+
+
+/* --- SANTÉ & VOITURE --- */
+.col-health { 
+    width: 25px; 
+    text-align: center; 
+    font-size: 13px; 
+    flex-shrink: 0;
+}
+.status-ok    { color: #10b981 !important; filter: drop-shadow(0 0 2px rgba(16,185,129,0.5)); }
+.status-warn  { color: #f97316 !important; animation: pulse-warn 1s infinite alternate; }
+.status-dead  { color: #ef4444 !important; opacity: 0.8; }
+
+@keyframes pulse-warn {
+    from { opacity: 1; } to { opacity: 0.6; }
+}
+
+.col-flag { width: 30px; display: flex; justify-content: center; align-items: center; }
+
+.img-flag {
+    width: 20px;
+    height: 14px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 2px;
+}
+
+/* --- INFOS PILOTES --- */
+.col-pos  { width: 28px; text-align: center; font-weight: 800; color: #aaa; }
+.col-car  { width: 32px; text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: bold; }
+
+.col-cat-bar {
+    width: 4px;
+    height: var(--elem-h);
+    margin: 0 10px;
+    border-radius: 1px;
+    flex-shrink: 0;
+}
+
+.col-name { 
+    flex: 1; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+    font-weight: 600; 
+    padding-left: 5px;
+	text-shadow: none !important;
+   
+}
+
+/* Ton nom en jaune pour ressortir */
+.lb-row.is-me .col-name {
+    color: #ffcc00 !important;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(255, 204, 0, 0.3); /* Légère lueur jaune */
+}
+
+
+
+
+
+/* --- BADGES (IR, LIC, SR) --- */
+.col-ir   { width: 45px; display: flex; justify-content: center; }
+.col-lic  { width: 30px; display: flex; justify-content: center; }
+.col-sr   { width: 45px; display: flex; justify-content: center; }
+
+.badge-lic, .badge-sr, .badge-ir, .badge-ia {
+    height: var(--elem-h);
+    line-height: var(--elem-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    border-radius: var(--radius);
+}
+
+.badge-lic { width: 22px; }
+.badge-sr  { width: 38px; text-shadow: var(--text-shadow); }
+.badge-ir  { width: 38px; background: #eee; color: #000; font-weight: 900; }
+.badge-ia  { width: 38px; border: 1px solid #555; color: #888; }
+
+
+/* Détournement des classes de catégorie pour le texte du chrono */
+.col-time.chrono-cat {
+    background-color: transparent !important; /* On annule ton fond */
+    font-weight: 800;
+    text-align: right;
+}
+
+/* On récupère la couleur du background pour l'appliquer au texte */
+.col-time.cat-color-0 { color: #c62828 !important; }
+.col-time.cat-color-1 { color: #1565c0 !important; }
+.col-time.cat-color-2 { color: #2e7d32 !important; }
+.col-time.cat-color-3 { color: #ef6c00 !important; }
+.col-time.cat-color-4 { color: #6a1b9a !important; }
+
+
+
+
+
+
+/* ==========================================================
+   STRUCTURE COMMUNE (11 COLONNES)
+   ========================================================== */
+
+
+
+/* --- ALIGNEMENTS SPECIFIQUES --- */
+
+/* La colonne Gain (icône + chiffre) */
+.col-gain {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-weight: bold;
+}
+
+
+
+/* Chiffres (Gaps et Chronos) */
+.col-gap, .col-time {
+    text-align: right;
+    font-variant-numeric: tabular-nums; /* Chiffres alignés */
+    font-weight: bold;
+}
+
+/* --- SPECIFICITÉS RELATIF --- */
+#relative-drivers-list .col-gap {
+    grid-column: span 2; /* Fusionne Gap1 et Gap2 pour le relatif */
+    color: #ffffff !important;
+    padding-right: 15px;
+}
+
+/* ==========================================================
+   STYLISATION DES ÉLÉMENTS (BADGES & COULEURS)
+   ========================================================== */
+
+/* Positions */
+.col-pos {
+    background: #fff !important;
+    color: #000 !important;
+    border-radius: 2px;
+    font-weight: 900;
+    text-align: center;
+}
+
+/* Badges iRating et Licences */
+.badge-ir {
+    background: #eee;
+    color: #000;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 10px;
+    width: 38px;
+    text-align: center;
+}
+
+.badge-lic {
+    font-weight: bold;
+    text-align: center;
+}
+
+/* --- COULEURS DES TEXTES (PLUS CLAIRES POUR LA LISIBILITÉ) --- */
+.chrono-fluo-0 { color: #ff6666 !important; } /* Rouge plus clair */
+.chrono-fluo-1 { color: #88b3ff  } /* Bleu ciel/fluo (BEAUCOUP plus lisible) */
+.chrono-fluo-2 { color: #66ff66 !important; } /* Vert fluo */
+.chrono-fluo-3 { color: #ffdd33 !important; } /* Jaune vif */
+.chrono-fluo-4 { color: #e088ff !important; } /* Violet clair */
+
+/* --- COULEURS DES BARRES (ELLES PEUVENT RESTER FONCÉES) --- */
+.col-cat-bar.cat-color-0 { background-color: #ff0000 !important; }
+.col-cat-bar.cat-color-1 { background-color: #0055ff ; } /* Bleu pur */
+.col-cat-bar.cat-color-2 { background-color: #00aa00 !important; }
+.col-cat-bar.cat-color-3 { background-color: #ffaa00 !important; }
+.col-cat-bar.cat-color-4 { background-color: #aa00ff !important; }
+
+/* --- AJOUT D'UN EFFET DE CONTRASTE --- */
+.col-name, .col-time, .titre-categorie {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Ajoute une ombre portée pour décoller le texte du fond */
+}
+
+
+
+
+/* On s'assure que les classes de couleurs s'appliquent au FOND du badge et non au texte */
+.titre-categorie.cat-color-0 { background-color: #ff4444 !important; }
+.titre-categorie.cat-color-1 { background-color: #0055ff !important; } /* Ton bleu IMSA */
+.titre-categorie.cat-color-2 { background-color: #44ff44 !important; }
+.titre-categorie.cat-color-3 { background-color: #ffcc00 !important; }
+.titre-categorie.cat-color-4 { background-color: #cc44ff !important; }
+
+/* 1. Propriétés communes (Design des lignes) */
+#leaderboard-dynamic-container .lb-row, 
+#relative-drivers-list .lb-row {
+    display: grid;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    height: 28px;
+    /* On ne définit pas grid-template-columns ici car elles diffèrent */
+}
+
+/* 2. Configuration spécifique au LEADERBOARD (AVEC LOGO) */
+#leaderboard-dynamic-container .lb-row {
+    grid-template-columns: 
+        32px   /* Pos */
+        38px   /* Num */
+        20px   /* Barre couleur */
+        50px   /* LOGO VOITURE (La colonne qui posait souci) */
+        1fr    /* Nom */
+        35px   /* Gain */
+        48px   /* iRating */
+        28px   /* Lic */
+        42px   /* SR */
+        62px   /* Gap */
+        62px   /* Int */
+        85px;  /* Chrono */
+}
+
+/* 3. Configuration spécifique au RELATIF (SANS LOGO) */
+#relative-drivers-list .lb-row {
+    grid-template-columns: 
+        32px   /* Pos */
+        38px   /* Num */
+        20px   /* Barre couleur */
+        /* ICI : Pas de colonne 50px */
+        1fr    /* Nom (Prend toute la place disponible) */
+        35px   /* Gain / Diff */
+        48px   /* iRating */
+        28px   /* Lic */
+        42px   /* SR */
+        62px   /* Gap Relatif */
+        62px   /* Gap Relatif 2 */
+        85px;  /* Chrono ou autre */
+}
+
+
+
+
+
+
+.col-cars {
+    width: 40px;          /* Ajuste selon tes besoins */
+    height: 20px;         /* Ajuste selon tes besoins */
+
+}
+
+.col-cars img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;  /* Garde les proportions sans déformer le logo */
+}
+
+
+
+.name-stack {
+    display: flex;
+    flex-direction: column; /* Empile le nom et la voiture */
+    justify-content: center;
+    line-height: 1.1; /* Rapproche les deux lignes */
+	
+}
+
+
+.car-model-name {
+    font-size: 10px;
+    color: #999;
+    text-transform: lowercase; /* Pour enlever les majuscules agressives */
+    display: block;
+    
+    /* MODIFICATION ICI */
+    margin-left: 20px; /* Ajuste ce chiffre pour décaler vers la droite */
+}
+
+/* Optionnel : mettre la première lettre en majuscule pour faire plus propre */
+.car-model-name::first-letter {
+    text-transform: uppercase;
+}
+
+/* Optionnel : Si tu veux que la ligne soit un peu plus haute pour laisser respirer */
+#leaderboard-dynamic-container .lb-row {
+    height: 34px; /* On passe de 28px à 34px pour le confort visuel */
+	
+}
+
+
+
+/* Styles visuels complexes  .en-tete-bleu {    margin-bottom: 30px !important;    display: flex !important;}*/
+.en-tete-rouge { border-bottom: 2px solid var(--rouge); margin-bottom: 30px !important;}
+.en-tete-bleu { 
+    border-bottom: 2px solid var(--bleu); /* ou --bleu-lapped */
+    margin-bottom: 30px !important; 
+}
+
+
+
+
+
+
+
+/* --- CONFIGURATION DU MODULE RADIO --- */
+
+#module-radio-team {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+#module-radio-team.active {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+/* PHOTO : Priorité visuelle 120x150 */
+.radio-photo-conteneur {
+    width: 120px !important;
+    height: 150px !important;
+    border: 2px solid var(--neon); /* Utilise ton vert néon */
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #000;
+}
+
+.radio-photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ALIGNEMENT TEXTES EXPERT */
+.infos-expert-container {
+    padding-left: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+}
+
+.ligne-info-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+}
+
+/* STATUS LIVE COMPACT */
+.status-live-mini {
+    display: flex;
+    align-items: center;
+    font-size: 9px;
+    color: #00ff00;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.dot-blink {
+    width: 6px;
+    height: 6px;
+    background-color: #ff0000;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
+animation: radio-clignote 1s infinite;
+}
+
+@keyframes radio-clignote {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+.msg-compact {
+    min-height: 35px;
+    line-height: 1.2;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* BORDURE D'ÉDITION (Visible uniquement en mode CTRL+ALT+M) */
+.edit-mode-active .editable-mod {
+    outline: 2px dashed #00ff00 !important;
+}

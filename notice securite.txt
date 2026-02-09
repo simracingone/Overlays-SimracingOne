@@ -1,0 +1,55 @@
+===========================================================================
+NOTICE DE SÉCURITÉ ET CLAUSE DE NON-RESPONSABILITÉ - OVERLAY IRACING
+===========================================================================
+Auteur : Philippe MOURIER
+Version : v3.2.
+Date : Janvier 2026
+---------------------------------------------------------------------------
+
+Cette notice a pour but de vous informer sur le fonctionnement technique 
+de l'overlay et de protéger à la fois l'utilisateur et le développeur.
+
+1. INTÉGRITÉ DU SYSTÈME ET DU JEU (ANTI-CHEAT SAFE)
+---------------------------------------------------
+- Le logiciel utilise le SDK officiel fourni par iRacing. 
+- Il fonctionne en "Lecture Seule" : il lit les données de télémétrie 
+  partagées mais n'écrit JAMAIS de données dans le simulateur.
+- Il n'y a donc AUCUN risque de détection par les systèmes Anti-Cheat 
+  ou de bannissement de votre compte iRacing.
+- Aucun droit "Administrateur" n'est requis pour l'exécution.
+
+2. CONFIDENTIALITÉ ET SÉCURITÉ DES DONNÉES
+------------------------------------------
+- Fonctionnement en Circuit Fermé (Localhost) : Toutes les communications 
+  entre le serveur Python et l'interface Electron se font exclusivement 
+  sur votre machine (adresse IP locale 127.0.0.1).
+- Zéro Fuite : Aucune donnée personnelle, adresse IP ou télémétrie n'est 
+  transmise vers un serveur externe. Le projet est 100% privé.
+- Le code est transparent et ne modifie aucun fichier système Windows 
+  ni aucune clé de registre.
+
+3. COMPATIBILITÉ ET RESSOURCES
+------------------------------
+- Le projet est conçu pour être "Lightweight" (Léger). Il consomme très peu 
+  de ressources CPU/RAM pour ne pas impacter vos FPS en course.
+- Il n'entre pas en conflit avec d'autres logiciels tiers comme SimHub, 
+  JRT ou Z1 Analyzer.
+
+4. CLAUSE DE NON-RESPONSABILITÉ (DISCLAIMER)
+--------------------------------------------
+L'utilisation de cet overlay est volontaire. Ce logiciel est fourni "en l'état", 
+sans garantie d'aucune sorte, expresse ou implicite. 
+
+En utilisant ce logiciel, vous acceptez que l'auteur ne puisse être tenu 
+responsable de :
+- Tout crash du système ou ralentissement dû à une mauvaise configuration 
+  des dépendances (Python/Node.js).
+- Toute erreur de pilotage ou résultat de course lié à l'affichage des données.
+- Tout problème technique survenant sur votre matériel.
+
+L'utilisateur est responsable de l'installation correcte des composants 
+requis mentionnés dans la documentation.
+
+---------------------------------------------------------------------------
+Bonne course et rendez-vous sur la piste !
+===========================================================================
